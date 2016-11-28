@@ -1,44 +1,28 @@
-<!--<style>
-  @import url(https://fonts.googleapis.com/css?family=Lato:300);
-
-  * {
-    margin: 0;
-    padding: 0;
-  }
-
-  html,
-  body { height: 100%; }
-
-  body {
-    align-items: center;
-    background:
-      radial-gradient(
-        ellipse at center,
-        rgba(255, 255, 255, 1) 0%,
-        rgba(229, 229, 229, .85) 100%
-      );
-    background-position: center;
-    display: flex;
-    font-family: Lato, Helvetica, sans-serif;
-    justify-content: center;
-    text-align: center;
-  }
-</style>-->
 <style lang="scss">
   @font-face {
     font-family: SourceHanSansCN-Light;
-    src: url('../fonts/SourceHanSansCN-Light.ttf');
+    src: url('./fonts/SourceHanSansCN-Light.ttf');
     font-weight: normal;
   }
 
   $family-primary: Arial, "SourceHanSansCN-Light", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
 
-  @import '../node_modules/bulma/bulma.sass'
+  @import '../node_modules/bulma/bulma.sass';
+</style>
+<style>
+  html {
+    overflow-y: hidden;
+    height: 100%;
+  }
+
+  body {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+  }
 </style>
 <template>
-  <div>
-    <router-view></router-view>
-  </div>
+  <router-view></router-view>
 </template>
 
 <script>

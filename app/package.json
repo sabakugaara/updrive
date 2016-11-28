@@ -5,6 +5,8 @@
   "main": "electron.js",
   "dependencies": {
     "bulma": "^0.2.3",
+    "ramda": "^0.22.1",
+    "request": "^2.79.0",
     "vue": "^2.0.1",
     "vue-electron": "^1.0.0",
     "vue-resource": "^1.0.3",

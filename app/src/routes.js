@@ -1,18 +1,13 @@
 export default [
   {
     path: '/',
-    name: 'landing-page',
-    component: require('components/LandingPageView')
-  },
-  {
-    path: '/home',
-    name: 'home',
-    component: require('components/layout/layout')
+    name: 'main',
+    component: require('components/Main')
   },
   {
     path: '/login',
     name: 'login',
-    component: require('components/login')
+    component: require('components/Login')
   },
   {
     path: '*',

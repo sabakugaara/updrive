@@ -39,16 +39,16 @@
     methods: {
       submit() {
         const {operatorName, password, bucketName} = this
-        this.$store.dispatch({
-          type: 'VERIFICATION_ACCOUNT',
-          bucketName,
-          operatorName,
-          password,
-        })
+        if(!(operatorName && password && bucketName)) return false
+        this.$store
+          .dispatch({ type: 'VERIFICATION_ACCOUNT', bucketName, operatorName, password,})
+          .then(result => {
+            this.$router.push({ name: 'main'})
+          })
+          .catch(error => {
+            alert(error)
+          })
       }
-    },
-    computed: mapState({
-      counters: 'counters'
-    }),
+    }
   }
 </script>

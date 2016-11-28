@@ -5,4 +5,4 @@ export const LOGIN_SUCCESS = 'LOGIN_SUCCESS' // 登录成功
 export const SET_USER_INFO = 'SET_USER_INFO' // 设置用户信息
 // actions
 export const VERIFICATION_ACCOUNT = 'VERIFICATION_ACCOUNT' // 验证账号
-export const REQUEST_LOGIN = 'REQUEST_LOGIN' // 登录
+export const GET_LIST_DIR_INFO = 'GET_LIST_DIR_INFO' // 获取列表信息
