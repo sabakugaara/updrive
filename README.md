@@ -18,6 +18,11 @@ npm run build
 npm run pack
 ```
 
-## 任务
+## TODO
+
+- [ ] 文件图标
+- [ ] 文件目录
+- [ ] 上传
+- [ ] 搜索
 
 
