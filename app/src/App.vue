@@ -1,3 +1,17 @@
+<template>
+  <router-view></router-view>
+</template>
+
+<script>
+  import * as filters from './filters'
+  import store from 'src/vuex/store'
+
+  export default {
+    store,
+  }
+</script>
+
+
 <style lang="scss">
   @font-face {
     font-family: SourceHanSansCN-Light;
@@ -5,10 +19,14 @@
     font-weight: normal;
   }
 
-  $family-primary: Arial, "SourceHanSansCN-Light", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
-
+  $family-primary: Arial,
+  "SourceHanSansCN-Light",
+  "Hiragino Sans GB",
+  "Microsoft YaHei",
+  sans-serif;
   @import '../node_modules/bulma/bulma.sass';
 </style>
+
 <style>
   html {
     overflow-y: hidden;
@@ -20,15 +38,10 @@
     display: flex;
     flex-direction: column;
   }
-</style>
-<template>
-  <router-view></router-view>
-</template>
 
-<script>
-  import store from 'src/vuex/store'
-
-  export default {
-    store
+  ::-webkit-scrollbar {
+    height: 16px;
+    overflow: visible;
+    width: 16px;
   }
-</script>
+</style>

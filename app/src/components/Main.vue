@@ -1,12 +1,37 @@
 <template>
   <section class="page">
-    <page-header></page-header>
+    <page-nav></page-nav>
     <page-main></page-main>
   </section>
 </template>
 
-<style>
+<script>
+  import { mapState } from 'vuex'
+  import PageNav from './layout/PageNav'
+  import PageMain from './layout/PageMain'
 
+  export default {
+    components: {
+      PageNav,
+      PageMain,
+    },
+    created () {
+      this.$store.dispatch({ type: 'GET_LIST_DIR_INFO', path: '/' })
+        .then(result => {
+          // console.log(result)
+        })
+        .catch(error => {
+          console.log(error)
+        })
+    },
+    computed: {
+      ...mapState(['user']),
+    }
+  }
+</script>
+
+
+<style>
   .page {
     display: flex;
     flex-direction: column;
@@ -15,26 +40,4 @@
     overflow: hidden;
     background: #fcfcfc;
   }
-
 </style>
-
-<script>
-  import PageHeader from './layout/PageHeader'
-  import PageMain from './layout/PageMain'
-
-  export default {
-    created () {
-      this.$store.dispatch({ type: 'GET_LIST_DIR_INFO', path: '/' })
-        .then(result => {
-          console.log(result)
-        })
-        .catch(error => {
-          console.log(error)
-        })
-    },
-    components: {
-      PageHeader,
-      PageMain,
-    },
-  }
-</script>

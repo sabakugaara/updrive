@@ -1,5 +1,5 @@
 import * as types from '../mutation-types'
-import { pickAll } from 'Ramda'
+import { pickAll } from 'ramda'
 
 const state = pickAll(['bucketName', 'operatorName', 'passwordMd5'])(JSON.parse(localStorage.getItem('user')))
 

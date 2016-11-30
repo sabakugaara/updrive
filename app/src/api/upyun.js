@@ -1,9 +1,10 @@
 import { getAuthorizationHeader, md5sum } from './tool.js'
 import request from 'request'
 import R from 'ramda';
-const DEFAULT_HOSTNAME = 'v0.api.upyun.com'
 
 const {split, map, zipObj, compose, objOf} = R
+
+const DEFAULT_HOSTNAME = 'v0.api.upyun.com'
 
 export const checkAuth = ({bucketName = '', operatorName = '', password = ''} = {}) => {
   const passwordMd5 = md5sum(password)
@@ -42,7 +43,7 @@ export const getListDirInfo = ({bucketName = '', operatorName = '', passwordMd5 
           compose(resolve, compose(
             objOf('data'),
             compose(
-              map(compose(zipObj(['filename', 'fileType', 'size', 'lastModified']), split(/\t/))),
+              map(compose(zipObj(['filename', 'folderType', 'size', 'lastModified']), split(/\t/))),
               split(/\n/))))(body)
         } catch (err) {
           reject(err)
