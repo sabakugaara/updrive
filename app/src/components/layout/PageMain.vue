@@ -5,27 +5,25 @@
     <div class="list-view">
       <div class="list">
         <div class="wrap-list">
-          <div class="scroll-zone">
-            <div class="file-list">
-              <div class="file-list-column">
-                <div class="column-file-name table-column"></div>
-                <div class="column-last-modified table-column"></div>
-                <div class="column-file-type table-column"></div>
-                <div class="column-file-size table-column"></div>
-              </div>
-              <div class="file-list-header">
-                <div class="file-info-item column-file-name">名称</div>
-                <div class="file-info-item column-last-modified">修改日期</div>
-                <div class="file-info-item column-file-type">类型</div>
-                <div class="file-info-item column-file-size">大小</div>
-              </div>
-              <div class="file-list-body">
-                <div class="file-list-item" v-for="file in list.dir.data">
-                  <div class="file-name file-info-item">{{file.filename}}</div>
-                  <div class="last-modified file-info-item">{{file.lastModified | timestamp}}</div>
-                  <div class="file-type file-info-item">文件</div>
-                  <div class="file-size file-info-item">{{(file.folderType === 'F' ? '-' : file.size) | digiUnit}}</div>
-                </div>
+          <div class="file-list">
+            <div class="file-list-column">
+              <div class="column-file-name table-column"></div>
+              <div class="column-last-modified table-column"></div>
+              <div class="column-file-type table-column"></div>
+              <div class="column-file-size table-column"></div>
+            </div>
+            <div class="file-list-header">
+              <div class="file-info-item column-file-name">名称</div>
+              <div class="file-info-item column-last-modified">修改日期</div>
+              <div class="file-info-item column-file-type">类型</div>
+              <div class="file-info-item column-file-size">大小</div>
+            </div>
+            <div class="file-list-body">
+              <div class="file-list-item" v-for="file in list.dir.data">
+                <div class="file-name file-info-item">{{file.filename}}</div>
+                <div class="last-modified file-info-item">{{file.lastModified | timestamp}}</div>
+                <div class="file-type file-info-item">文件</div>
+                <div class="file-size file-info-item">{{(file.folderType === 'F' ? '-' : file.size) | digiUnit}}</div>
               </div>
             </div>
           </div>
@@ -66,13 +64,14 @@
 
   .list-view {
     flex: 1;
-    padding-left: 5px;
-    padding-right: 5px;
+    position: relative;
     padding-top: 5px;
     display: flex;
     border-left: 1px solid #ccc;
     flex-direction: column;
     background: #fff;
+    overflow-y: scroll;
+    overflow-x: hidden;
   }
 
   .list {
@@ -80,18 +79,15 @@
     display: flex;
     flex: 1;
   }
+
   .wrap-list {
     position: absolute;
     top: 25px;
     bottom: 0;
     left: 0;
     right: 0;
-    .scroll-zone {
-      height: 100%;
-      overflow-x: hidden;
-      overflow-y: scroll;
-    }
   }
+
   .file-list {
     display: table;
     table-layout: fixed;
@@ -109,8 +105,10 @@
       }
       .file-info-item {
         line-height: 25px;
-        border-right: 1px solid #e5e5e5;
         padding-left: 6px;
+        &:not(:last-child) {
+          border-right: 1px solid #e5e5e5;
+        }
       }
     }
     .file-list-body {

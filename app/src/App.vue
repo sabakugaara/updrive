@@ -19,29 +19,8 @@
     font-weight: normal;
   }
 
-  $family-primary: Arial,
-  "SourceHanSansCN-Light",
-  "Hiragino Sans GB",
-  "Microsoft YaHei",
-  sans-serif;
+  $family-primary: Arial, "SourceHanSansCN-Light", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+
   @import '../node_modules/bulma/bulma.sass';
-</style>
-
-<style>
-  html {
-    overflow-y: hidden;
-    height: 100%;
-  }
-
-  body {
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-  }
-
-  ::-webkit-scrollbar {
-    height: 16px;
-    overflow: visible;
-    width: 16px;
-  }
+  @import './styles/index.scss';
 </style>
