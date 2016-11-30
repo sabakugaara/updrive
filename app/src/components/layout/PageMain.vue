@@ -65,41 +65,35 @@
   .list-view {
     flex: 1;
     position: relative;
-    padding-top: 5px;
     display: flex;
     border-left: 1px solid #ccc;
     flex-direction: column;
     background: #fff;
+  }
+
+  .list {
+    display: flex;
+    flex: 1;
     overflow-y: scroll;
     overflow-x: hidden;
   }
 
-  .list {
-    position: relative;
-    display: flex;
-    flex: 1;
-  }
-
-  .wrap-list {
-    position: absolute;
-    top: 25px;
-    bottom: 0;
-    left: 0;
-    right: 0;
-  }
+  .wrap-list {}
 
   .file-list {
     display: table;
     table-layout: fixed;
+    padding-top: 25px;
     height: 100%;
     width: 100%;
     .file-list-header {
+      background: #fff;
       position: absolute;
-      top: -25px;
+      top: 0;
       color: #4c607a;
       font-size: 14px;
       display: flex;
-      width: 100%;
+      width: calc(100% - 16px);
       .column-file-name {
         flex: 1;
       }
