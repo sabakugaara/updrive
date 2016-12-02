@@ -1,0 +1,57 @@
+// page main
+.page-main {
+  display: flex;
+  flex: 1;
+  border-top: 1px solid #ccc;
+  background: #eee;
+}
+
+.menu {
+  width: 160px;
+  display: flex;
+}
+
+// page-header
+.page-header {
+  align-items: center;
+  display: flex;
+  padding: 0 12px;
+  background: #fff;
+}
+
+.page-title {
+  font-size: 1.5em;
+  line-height: 1;
+  margin: 15px 0;
+}
+
+.logo {
+  line-height: 50px;
+  display: inline-block;
+}
+
+.logo img{
+  height: 25px;
+  vertical-align: middle;
+}
+
+// page-nav
+.bar {
+  border-top: 1px solid #ccc;
+  align-items: center;
+  display: flex;
+  background: #fafafa;
+}
+
+.button-zone {
+  width: 160px;
+}
+
+.nav {
+  align-items: center;
+  background: #fafafa;
+  flex: 1;
+  padding-left: 22px;
+  padding-right: 16px;
+  font-size: 1.5em;
+}

@@ -1,8 +1,8 @@
-import { getAuthorizationHeader, md5sum } from './tool.js'
 import request from 'request'
-import R from 'ramda';
+import {split, map, zipObj, compose, objOf} from 'ramda';
 
-const {split, map, zipObj, compose, objOf} = R
+
+import { getAuthorizationHeader, md5sum, getUri } from './tool.js'
 
 const DEFAULT_HOSTNAME = 'v0.api.upyun.com'
 
@@ -27,11 +27,11 @@ export const checkAuth = ({bucketName = '', operatorName = '', password = ''} = 
   })
 }
 
-export const getListDirInfo = ({bucketName = '', operatorName = '', passwordMd5 = '', path = '/'} = {}) => {
+export const getListDirInfo = ({bucketName = '', operatorName = '', passwordMd5 = '', path = ''} = {}) => {
   return new Promise((resolve, reject) => {
     const date = (new Date()).toGMTString()
     request({
-      url: `http://${DEFAULT_HOSTNAME}/${bucketName}${path}`,
+      url: `http://${DEFAULT_HOSTNAME}${getUri(bucketName)(path)}`,
       headers: {
         Authorization: getAuthorizationHeader({ operatorName, passwordMd5, path, bucketName, date }),
         Date: date,

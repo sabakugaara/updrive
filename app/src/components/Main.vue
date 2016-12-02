@@ -16,7 +16,7 @@
       PageMain,
     },
     created () {
-      this.$store.dispatch({ type: 'GET_LIST_DIR_INFO', path: '/' })
+      this.$store.dispatch({ type: 'GET_LIST_DIR_INFO' })
         .then(result => {
           // console.log(result)
         })

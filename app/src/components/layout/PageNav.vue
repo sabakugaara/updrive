@@ -1,7 +1,14 @@
 <template>
   <div class="bar">
+    <div class="button-zone">
+
+    </div>
     <div class="nav">
       {{user.bucketName}}
+      <div>
+        <div></div>
+        <div></div>
+      </div>
     </div>
   </div>
 </template>
@@ -16,18 +23,3 @@
     }
   }
 </script>
-
-<style>
-  .bar {
-    border-top: 1px solid #ccc;
-    align-items: center;
-    display: flex;
-    background: #fafafa;
-  }
-
-  .nav {
-    align-items: center;
-    background: #fafafa;
-    font-size: 1.5em;
-  }
-</style>
