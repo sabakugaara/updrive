@@ -9,7 +9,6 @@ const state = {
 const mutations = {
   [types.SET_CURRENT_LIST](state, {data, path, addPath}) {
     state.dirInfo = data
-    console.log(data)
     if(path) state.pathStack =  compose(filter(identity), split('/'))(path)
     if(addPath) state.pathStack =  append(addPath)(state.pathStack)
   },

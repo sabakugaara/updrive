@@ -55,3 +55,27 @@
   padding-right: 16px;
   font-size: 1.5em;
 }
+
+.link-icon {
+  display: inline-block;
+  .link-icon-inner {
+    position: relative;
+    opacity: .5;
+    top: 3px;
+    vertical-align: top;
+  }
+}
+
+.breadcrumb-bar {
+  .path-item {
+    display: inline-block;
+    vertical-align: top;
+    // &:hover {
+    //   background: #fff;
+    //   border: 1px solid #c2c2c2;
+    //   padding: 0 5px;
+    //   box-shadow: 0 1px 2px 0 rgba(0,0,0,.1);
+    //   cursor: pointer;
+    // }
+  }
+}
