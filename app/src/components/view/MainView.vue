@@ -39,17 +39,14 @@
 <script>
   import { assocPath, map, compose, assoc, path, cond, and, prop, both, T, always, keys, filter, apply,
     range, pick, merge, converge, length, not, __, reduce, identity, findIndex, last, pipe, propEq, slice, uri, pluck, concat, remove, append  } from 'ramda'
-  import { mapState, dispatch } from 'vuex'
+  import { mapState, dispatch, commit } from 'vuex'
   import { timestamp, digiUnit } from '../../filters'
 
   export default {
-    data() {
-      return {
-        selected: [],
-      }
-    },
     computed: {
-      listItemState({selected = []}) {
+      listItemState() {
+        console.log(this)
+        const selected = path(['list', 'selected'])(this)
         const setSelected = reduce((result, value) => {
           return assocPath([value, 'selected'], true)(result)
         }, __ , selected)
@@ -59,16 +56,29 @@
     },
     methods: {
       selectItem({uri}, $event, index, data) {
+        const selected = path(['list', 'selected'])(this)
         if($event.shiftKey) {
-          const lastIndex = findIndex(pipe(last, propEq('uri'))(this.selected), data)
+          const lastIndex = findIndex(pipe(last, propEq('uri'))(selected), data)
           const getBacthFile = lastIndex < index ? slice(lastIndex, index+1) : slice(index, lastIndex + 1)
           const addedList = pluck('uri', getBacthFile(data))
-          this.selected = $event.ctrlKey ? concat(this.selected, addedList) : addedList
+          this.$store.commit({
+            type: 'SET_SELECT_LIST',
+            selected: $event.ctrlKey ? concat(selected, addedList) : addedList,
+          })
         } else if($event.ctrlKey) {
-          this.selected = !~this.selected.indexOf(uri) ? append(uri, this.selected) : remove(this.selected.indexOf(uri), 1, this.selected)
+          this.$store.commit({
+            type: 'SET_SELECT_LIST',
+            selected: !~selected.indexOf(uri) ? append(uri, selected) : remove(selected.indexOf(uri), 1, selected),
+          })
         } else {
-          this.selected = [uri]
+          this.$store.commit({
+            type: 'SET_SELECT_LIST',
+            selected: [uri],
+          })
         }
+      },
+      selectAll($event) {
+        console.log($event)
       },
       dblclickItem({folderType, filename}) {
         // 如果是文件夹,则打开目录

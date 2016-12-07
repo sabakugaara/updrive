@@ -48,5 +48,7 @@
     "webpack": "^1.13.0",
     "webpack-dev-server": "^1.14.1"
   },
-  "dependencies": {}
+  "dependencies": {
+    "electron-localshortcut": "^1.0.0"
+  }
 }
