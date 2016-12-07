@@ -75,6 +75,13 @@
 
   .file-list-item {
     display: table-row;
+    &:hover {
+      background: #e5f3ff;
+    }
+    &.item-selected {
+      background: #cce8ff;
+      outline: 1px solid #99d1ff;
+    }
   }
 
   .file-info-item {
@@ -109,7 +116,4 @@
   background: #e5f3ff;
 }
 
-.item-selected {
-  background: #cce8ff;
-  outline: 1px solid #99d1ff;
-}
+

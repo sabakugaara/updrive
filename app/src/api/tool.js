@@ -3,6 +3,10 @@ import { replace, compose } from 'ramda';
 
 export const md5sum = data => crypto.createHash('md5').update(data, 'utf8').digest('hex')
 
+export const base64 = (str = '') => (new Buffer(str).toString('base64'))
+
+export const standardUri = compose(replace(/(\/*)$/, '/') ,replace(/^(\/*)/, '/'))
+
 export const makeSign = ({method, uri, date, contentLength, passwordMd5, operatorName} = {}) => {
   return (`UpYun ${operatorName}:${md5sum(`${method}&${uri}&${date}&${contentLength}&${passwordMd5}`)}`)
 }

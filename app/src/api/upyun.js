@@ -1,8 +1,8 @@
+import {split, map, zipObj, compose, objOf, ifElse, isEmpty, assoc, replace, converge, always, prop, concat, identity, __, equals} from 'ramda';
 import request from 'request'
-import {split, map, zipObj, compose, objOf, ifElse, isEmpty, assoc, replace} from 'ramda';
 
 
-import { getAuthorizationHeader, md5sum, getUri } from './tool.js'
+import { getAuthorizationHeader, md5sum, getUri, standardUri } from './tool.js'
 
 const DEFAULT_HOSTNAME = 'v0.api.upyun.com'
 
@@ -42,13 +42,21 @@ export const getListDirInfo = ({bucketName = '', operatorName = '', passwordMd5 
         try {
           compose(
             resolve,
-            compose(assoc('path'), compose(replace(/(\/*)$/, '/') ,replace(/^(\/*)/, '/')))(path),
+            compose(assoc('path'), standardUri)(path),
             ifElse(
               isEmpty,
               () => ({data: []}),
               compose(
                 objOf('data'),
                 compose(
+                  map(converge(assoc, [
+                    always('uri'),
+                    converge(concat, [
+                      compose(concat(standardUri(path)) ,prop('filename')),
+                      compose(ifElse(equals('F'), always('/'), always('')), prop('folderType')),
+                    ]),
+                    identity,
+                  ])),
                   map(compose(zipObj(['filename', 'folderType', 'size', 'lastModified']), split(/\t/))),
                   split(/\n/))))
           )(body)

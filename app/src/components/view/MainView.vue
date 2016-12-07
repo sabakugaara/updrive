@@ -19,13 +19,10 @@
             class="file-list-item"
             v-for="(file, index) in list.dirInfo.data"
             :class="{
-              'item-hover': (listState[index] && listState[index].hover),
-              'item-selected': (listState[index] && listState[index].selected),
+              'item-selected': (listItemState[file.uri] && listItemState[file.uri].selected),
             }"
-            @mouseenter.stop="enterItem(index)"
-            @mouseleave.stop="leaveItem(index)"
-            @click.stop="selectItem(index, $event)"
-            @dblclick.stop="dblclickItem(index)">
+            @click.stop="selectItem(file, $event, index, list.dirInfo.data)"
+            @dblclick.stop="dblclickItem(file)">
             <div class="file-name file-info-item">
               <i class="file-icon" :class="{'icon-folder': file.folderType === 'F'}"></i>{{file.filename}}
             </div>
@@ -40,64 +37,47 @@
 </template>
 
 <script>
-  import { assocPath, map, compose, assoc, path, cond, and, prop, both, T, always, keys, filter, apply, range, pick, merge, converge, length, not, __, reduce } from 'ramda'
+  import { assocPath, map, compose, assoc, path, cond, and, prop, both, T, always, keys, filter, apply,
+    range, pick, merge, converge, length, not, __, reduce, identity, findIndex, last, pipe, propEq, slice, uri, pluck, concat, remove, append  } from 'ramda'
   import { mapState, dispatch } from 'vuex'
   import { timestamp, digiUnit } from '../../filters'
 
   export default {
     data() {
       return {
-        listState: {},
+        selected: [],
       }
     },
     computed: {
+      listItemState({selected = []}) {
+        const setSelected = reduce((result, value) => {
+          return assocPath([value, 'selected'], true)(result)
+        }, __ , selected)
+        return setSelected({})
+      },
       ...mapState(['user', 'list']),
     },
     methods: {
-      enterItem(index) {
-        return this.listState = assocPath([index, 'hover'], true)(this.listState)
-      },
-      leaveItem(index) {
-        return this.listState = assocPath([index, 'hover'], false)(this.listState)
-      },
-      selectItem(index, $event) {
-        if(path([index, 'selected'])(this.listState)) return
-        const mapAllSelectFalse = map(assoc('selected', false))
-        const setIndexSelected = assocPath([index, 'selected'], true)
-        const getCurrentSelectArray = compose(map(Number), keys, filter(prop('selected')))
-        const getcurrentStartIndex = compose(String, converge(apply, [always(Math.min), getCurrentSelectArray]))
-        const createStartToEndArray = (startIndex, endIndex) => map(String, range(Number(startIndex), Number(endIndex) + 1))
-
-        const setAllIndexSelected = (currentStartIndex, targetIndex) => {
-          const start = targetIndex > currentStartIndex ? currentStartIndex : targetIndex
-          const end = targetIndex > currentStartIndex ? targetIndex : currentStartIndex
-
-          return reduce((result = {}, current) => {
-            console.log(result, 1)
-            return assocPath([current, 'selected'], true)(result)
-          }, __, createStartToEndArray(start, end))
+      selectItem({uri}, $event, index, data) {
+        if($event.shiftKey) {
+          const lastIndex = findIndex(pipe(last, propEq('uri'))(this.selected), data)
+          const getBacthFile = lastIndex < index ? slice(lastIndex, index+1) : slice(index, lastIndex + 1)
+          const addedList = pluck('uri', getBacthFile(data))
+          this.selected = $event.ctrlKey ? concat(this.selected, addedList) : addedList
+        } else if($event.ctrlKey) {
+          this.selected = !~this.selected.indexOf(uri) ? append(uri, this.selected) : remove(this.selected.indexOf(uri), 1, this.selected)
+        } else {
+          this.selected = [uri]
         }
-        console.log(compose(converge(setAllIndexSelected, [getcurrentStartIndex, always(index)]), prop('data'))({'1': {selected: true}}))
-        return this.listState = cond([
-          [compose(not, length, getCurrentSelectArray, prop('data')), compose(setIndexSelected, mapAllSelectFalse, prop('data'))],
-          [compose(both(prop('shiftKey'), prop('ctrlKey')), prop('event')), () => console.log('shift', 'ctrl')],
-          [compose(prop('shiftKey'), prop('event')), compose(converge(setAllIndexSelected, [getcurrentStartIndex, always(index)]), prop('data'))],
-          [compose(prop('ctrlKey'), prop('event')), compose(setIndexSelected, prop('data'))],
-          [T, compose(setIndexSelected, mapAllSelectFalse, prop('data'))],
-        ])({ event: $event, data: this.listState })
       },
-      dblclickItem(index) {
-        const itemData = this.list.dirInfo.data[index]
+      dblclickItem({folderType, filename}) {
         // 如果是文件夹,则打开目录
-        if(itemData.folderType === 'F') {
+        if(folderType === 'F') {
           this.$store.dispatch({
             type: 'GET_LIST_DIR_INFO',
-            path: `${this.list.dirInfo.path}${itemData.filename}/`,
+            path: `${this.list.dirInfo.path}${filename}/`,
           }).then(result => {
-            this.listState = {}
-            // console.log(result)
           }).catch(error => {
-            // this.listState = {}
             alert(error)
           })
         }
