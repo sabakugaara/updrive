@@ -1,5 +1,5 @@
 import request from 'request'
-import {split, map, zipObj, compose, objOf, ifElse, isEmpty} from 'ramda';
+import {split, map, zipObj, compose, objOf, ifElse, isEmpty, assoc, replace} from 'ramda';
 
 
 import { getAuthorizationHeader, md5sum, getUri } from './tool.js'
@@ -40,20 +40,22 @@ export const getListDirInfo = ({bucketName = '', operatorName = '', passwordMd5 
       if (error) reject(error)
       if (!error && response.statusCode === 200) {
         try {
-          ifElse(
-            isEmpty,
-            () => (resolve({data: []})),
-            compose(resolve, compose(
-              objOf('data'),
+          compose(
+            resolve,
+            compose(assoc('path'), compose(replace(/(\/*)$/, '/') ,replace(/^(\/*)/, '/')))(path),
+            ifElse(
+              isEmpty,
+              () => ({data: []}),
               compose(
-                map(compose(zipObj(['filename', 'folderType', 'size', 'lastModified']), split(/\t/))),
-                split(/\n/))))
+                objOf('data'),
+                compose(
+                  map(compose(zipObj(['filename', 'folderType', 'size', 'lastModified']), split(/\t/))),
+                  split(/\n/))))
           )(body)
         } catch (err) {
           reject(err)
         }
       } else {
-        console.log(response)
         reject(body)
       }
     })

@@ -61,7 +61,7 @@
   .link-icon-inner {
     position: relative;
     opacity: .5;
-    top: 3px;
+    top: 4px;
     vertical-align: top;
   }
 }
@@ -70,6 +70,7 @@
   .path-item {
     display: inline-block;
     vertical-align: top;
+    cursor: pointer;
     // &:hover {
     //   background: #fff;
     //   border: 1px solid #c2c2c2;
