@@ -40,8 +40,8 @@
 </template>
 
 <script>
+  import { assocPath, map, compose, assoc, path, cond, and, prop, both, T, always, keys, filter, apply, range, pick, merge, converge, length, not, __, reduce } from 'ramda'
   import { mapState, dispatch } from 'vuex'
-  import { assocPath, map, compose, assoc, path, cond, and, prop, both, T, always, keys, filter, apply, range, pick, merge, converge, length } from 'ramda'
   import { timestamp, digiUnit } from '../../filters'
 
   export default {
@@ -65,38 +65,26 @@
         const mapAllSelectFalse = map(assoc('selected', false))
         const setIndexSelected = assocPath([index, 'selected'], true)
         const getCurrentSelectArray = compose(map(Number), keys, filter(prop('selected')))
-        const getStartIndex = (args) => {
-          console.log(args)
-          compose(String, converge(apply, [always(Math.min), getCurrentSelectArray]))(args)
-        }
+        const getcurrentStartIndex = compose(String, converge(apply, [always(Math.min), getCurrentSelectArray]))
         const createStartToEndArray = (startIndex, endIndex) => map(String, range(Number(startIndex), Number(endIndex) + 1))
-        const setAllIndexSelected = (startIndex, endIndex) => {
-          console.log(startIndex, endIndex)
-          if(Number(endIndex) > Number(startIndex)) {
-            console.log(converge(merge, [
-              mapAllSelectFalse,
-              compose(map(assoc('selected', true)), pick(createStartToEndArray(startIndex, endIndex))),
-            ])(this.listState))
-            return converge(merge, [
-              mapAllSelectFalse,
-              compose(map(assoc('selected', true)), pick(createStartToEndArray(startIndex, endIndex))),
-            ])
-          } else {
-            return converge(merge, [
-              mapAllSelectFalse,
-              compose(map(assoc('selected', true)), pick(createStartToEndArray(endIndex, startIndex))),
-            ])
-          }
-        }
-        console.log(compose(String, converge(apply, [always(Math.min), compose(map(Number), keys, filter(prop('selected')))]))(this.listState))
 
+        const setAllIndexSelected = (currentStartIndex, targetIndex) => {
+          const start = targetIndex > currentStartIndex ? currentStartIndex : targetIndex
+          const end = targetIndex > currentStartIndex ? targetIndex : currentStartIndex
+
+          return reduce((result = {}, current) => {
+            console.log(result, 1)
+            return assocPath([current, 'selected'], true)(result)
+          }, __, createStartToEndArray(start, end))
+        }
+        console.log(compose(converge(setAllIndexSelected, [getcurrentStartIndex, always(index)]), prop('data'))({'1': {selected: true}}))
         return this.listState = cond([
-          [compose(length, getCurrentSelectArray), always(compose(setIndexSelected, mapAllSelectFalse))],
-          [both(prop('shiftKey'), prop('ctrlKey')), () => console.log('shift', 'ctrl')],
-          [prop('shiftKey'), always(setAllIndexSelected(getStartIndex(this.listState), index))],
-          [prop('ctrlKey'), always(setIndexSelected)],
-          [T, always(compose(setIndexSelected, mapAllSelectFalse))],
-        ])($event)(this.listState)
+          [compose(not, length, getCurrentSelectArray, prop('data')), compose(setIndexSelected, mapAllSelectFalse, prop('data'))],
+          [compose(both(prop('shiftKey'), prop('ctrlKey')), prop('event')), () => console.log('shift', 'ctrl')],
+          [compose(prop('shiftKey'), prop('event')), compose(converge(setAllIndexSelected, [getcurrentStartIndex, always(index)]), prop('data'))],
+          [compose(prop('ctrlKey'), prop('event')), compose(setIndexSelected, prop('data'))],
+          [T, compose(setIndexSelected, mapAllSelectFalse, prop('data'))],
+        ])({ event: $event, data: this.listState })
       },
       dblclickItem(index) {
         const itemData = this.list.dirInfo.data[index]
