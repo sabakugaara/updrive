@@ -16,7 +16,7 @@ export default {
       })
   },
   // 获取文件目录信息
-  [types.GET_LIST_DIR_INFO]({state, commit}, { folder = '', path }) {
+  [types.GET_LIST_DIR_INFO]({state, commit}, { path }) {
     return Upyun.getListDirInfo({ path, ...state.user })
       .then(result => {
         commit({
@@ -28,6 +28,10 @@ export default {
         // commit(types.CLEAR_USER_INFO)
         return Promise.reject(error)
       })
-  }
+  },
+  // 获取文件目录信息
+  [types.UPLOAD_FILES]({state, commit}, { path, localFilePath }) {
+    return Upyun.upload({ path, ...state.user }, { localFilePath })
+  },
 }
 

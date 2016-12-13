@@ -1,6 +1,6 @@
 import {split, map, zipObj, compose, objOf, ifElse, isEmpty, assoc, replace, converge, always, prop, concat, identity, __, equals} from 'ramda';
 import request from 'request'
-
+import fs from 'fs'
 
 import { getAuthorizationHeader, md5sum, getUri, standardUri } from './tool.js'
 
@@ -9,12 +9,10 @@ const DEFAULT_HOSTNAME = 'v0.api.upyun.com'
 export const checkAuth = ({bucketName = '', operatorName = '', password = ''} = {}) => {
   const passwordMd5 = md5sum(password)
   return new Promise((resolve, reject) => {
-    const date = (new Date()).toGMTString()
     request({
       url: `http://${DEFAULT_HOSTNAME}/${bucketName}/?usage`,
       headers: {
-        Authorization: getAuthorizationHeader({ operatorName, passwordMd5, path: `/`, bucketName, date }),
-        Date: date,
+        ...getAuthorizationHeader({ operatorName, passwordMd5, path: `/`, bucketName }),
       },
     }, (error, response, body) => {
       if (error) reject(error)
@@ -29,12 +27,10 @@ export const checkAuth = ({bucketName = '', operatorName = '', password = ''} = 
 
 export const getListDirInfo = ({bucketName = '', operatorName = '', passwordMd5 = '', path = ''} = {}) => {
   return new Promise((resolve, reject) => {
-    const date = (new Date()).toGMTString()
     request({
       url: `http://${DEFAULT_HOSTNAME}${getUri(bucketName)(path)}`,
       headers: {
-        Authorization: getAuthorizationHeader({ operatorName, passwordMd5, path, bucketName, date }),
-        Date: date,
+        ...getAuthorizationHeader({ operatorName, passwordMd5, path, bucketName }),
       },
     }, (error, response, body) => {
       if (error) reject(error)
@@ -68,4 +64,21 @@ export const getListDirInfo = ({bucketName = '', operatorName = '', passwordMd5 
       }
     })
   })
+}
+
+export const upload = (
+  {bucketName = '', operatorName = '', passwordMd5 = '', path = ''} = {},
+  {localFilePath}
+) => {
+  console.log(path, 11)
+  fs.createReadStream(localFilePath)
+    .pipe(request({
+      method: 'PUT',
+      url: `http://${DEFAULT_HOSTNAME}${getUri(bucketName)(path)}`,
+      headers: {
+        ...getAuthorizationHeader({ operatorName, passwordMd5, path, bucketName, contentLength: fs.statSync(localFilePath).size }),
+      },
+    }, (error, response, body) => {
+      console.log(error, response, body)
+    }))
 }

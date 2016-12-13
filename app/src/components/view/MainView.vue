@@ -45,37 +45,28 @@
   export default {
     computed: {
       listItemState() {
-        console.log(this)
         const selected = path(['list', 'selected'])(this)
-        const setSelected = reduce((result, value) => {
-          return assocPath([value, 'selected'], true)(result)
-        }, __ , selected)
+        const setSelected = reduce((result, value) => assocPath([value, 'selected'], true)(result), __ , selected)
         return setSelected({})
       },
       ...mapState(['user', 'list']),
     },
     methods: {
       selectItem({uri}, $event, index, data) {
-        const selected = path(['list', 'selected'])(this)
-        if($event.shiftKey) {
-          const lastIndex = findIndex(pipe(last, propEq('uri'))(selected), data)
-          const getBacthFile = lastIndex < index ? slice(lastIndex, index+1) : slice(index, lastIndex + 1)
-          const addedList = pluck('uri', getBacthFile(data))
-          this.$store.commit({
-            type: 'SET_SELECT_LIST',
-            selected: $event.ctrlKey ? concat(selected, addedList) : addedList,
-          })
-        } else if($event.ctrlKey) {
-          this.$store.commit({
-            type: 'SET_SELECT_LIST',
-            selected: !~selected.indexOf(uri) ? append(uri, selected) : remove(selected.indexOf(uri), 1, selected),
-          })
-        } else {
-          this.$store.commit({
-            type: 'SET_SELECT_LIST',
-            selected: [uri],
-          })
+        const getSelectedList = () => {
+          const selected = path(['list', 'selected'])(this)
+          if($event.shiftKey) {
+            const lastIndex = findIndex(pipe(last, propEq('uri'))(selected), data)
+            const getBacthFile = lastIndex < index ? slice(lastIndex, index+1) : slice(index, lastIndex + 1)
+            const addedList = pluck('uri', getBacthFile(data))
+            return $event.ctrlKey ? concat(selected, addedList) : addedList
+          } else if($event.ctrlKey) {
+            return !~selected.indexOf(uri) ? append(uri, selected) : remove(selected.indexOf(uri), 1, selected)
+          } else {
+            return [uri]
+          }
         }
+        this.$store.commit({ type: 'SET_SELECT_LIST', selected: getSelectedList() })
       },
       selectAll($event) {
         console.log($event)
@@ -83,13 +74,10 @@
       dblclickItem({folderType, filename}) {
         // 如果是文件夹,则打开目录
         if(folderType === 'F') {
-          this.$store.dispatch({
-            type: 'GET_LIST_DIR_INFO',
-            path: `${this.list.dirInfo.path}${filename}/`,
-          }).then(result => {
-          }).catch(error => {
-            alert(error)
-          })
+          this.$store
+            .dispatch({ type: 'GET_LIST_DIR_INFO', path: `${this.list.dirInfo.path}${filename}/` })
+            .then(result => {})
+            .catch(alert)
         }
       }
     },

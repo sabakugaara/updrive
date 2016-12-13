@@ -25,5 +25,21 @@ npm run pack
 - [ ] 上传
 - [ ] 搜索
 - [ ] 排序
+- [ ] 方向键 enter键 alt
+
+## 整理一下呗
+
+上传文件参数
+
+- Content-Secret 文件密钥
+- Content-Type 文件类型
+- Content-MD5	是否需要 MD5 校验
+- X-Upyun-Meta-X meta 信息
+- b64encoded 解码
+- x-gmkerl-thumb 图片处理 断点续传不允许 预处理
+- 音视频预处理请求
+
+getTree
+
 
 

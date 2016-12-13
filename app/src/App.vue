@@ -3,22 +3,15 @@
 </template>
 
 <script>
-  import * as filters from './filters'
   import store from 'src/vuex/store'
-  import { ipcRenderer } from 'electron'
   import { commit } from 'vuex'
+  import * as filters from './filters'
+  import { listenSelectAll } from './api/electron.js'
 
   export default {
     store,
-    // methods: {
-    //   shortCut($event) {
-    //     console.log($event)
-    //   }
-    // }
     created() {
-      ipcRenderer.on('SHORTCUT_SELECT_ALL', (event, message) => {
-        this.$store.commit('SHORTCUT_SELECT_ALL')
-      })
+      listenSelectAll((event, message) => this.$store.commit('SHORTCUT_SELECT_ALL'))
     }
   }
 </script>
