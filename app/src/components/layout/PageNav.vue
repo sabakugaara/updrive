@@ -57,15 +57,12 @@
       pathArray() {
         return compose(filter(identity), split('/'))(this.list.dirInfo.path)
       },
-      ...mapState(['user', 'list']) ,
+      ...mapState(['user', 'list'])
     },
     methods: {
       goto(index) {
         return this.$store
-          .dispatch({
-            type: 'GET_LIST_DIR_INFO',
-            path: `${compose(join('/'), take(index + 1))(this.pathArray)}/`,
-          })
+          .dispatch({ type: 'GET_LIST_DIR_INFO', remotePath: take(index + 1)(this.pathArray) })
           .then(result => {
             // console.log(result)
           })
@@ -79,7 +76,7 @@
             return this.$store
               .dispatch({
                 type: 'UPLOAD_FILES',
-                path: `${join('/')(this.pathArray)}/`,
+                remotePath: this.pathArray,
                 localFilePath: filePaths[0],
               })
           })

@@ -11,3 +11,4 @@ export const SET_SELECT_LIST = 'SET_SELECT_LIST' // 选择所有文件
 export const VERIFICATION_ACCOUNT = 'VERIFICATION_ACCOUNT' // 验证账号
 export const GET_LIST_DIR_INFO = 'GET_LIST_DIR_INFO' // 获取列表信息
 export const UPLOAD_FILES = 'UPLOAD_FILES' // 上传文件
+export const CREATE_FOLDER = 'CREATE_FOLDER' // 创建目录

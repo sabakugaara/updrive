@@ -1,18 +1,22 @@
-import {split, map, zipObj, compose, objOf, ifElse, isEmpty, assoc, replace, converge, always, prop, concat, identity, __, equals} from 'ramda';
+import { split, map, zipObj, compose, objOf, ifElse, isEmpty, assoc, replace, converge, always, prop, concat, identity, __, equals } from 'ramda';
 import request from 'request'
 import fs from 'fs'
+import { basename } from 'path'
 
 import { getAuthorizationHeader, md5sum, getUri, standardUri } from './tool.js'
 
 const DEFAULT_HOSTNAME = 'v0.api.upyun.com'
 
-export const checkAuth = ({bucketName = '', operatorName = '', password = ''} = {}) => {
-  const passwordMd5 = md5sum(password)
+// 授权认证
+export const checkAuth = (user) => {
   return new Promise((resolve, reject) => {
+    const method = 'GET'
+    const url = `http://${DEFAULT_HOSTNAME}/${user.bucketName}/?usage`
     request({
-      url: `http://${DEFAULT_HOSTNAME}/${bucketName}/?usage`,
+      method,
+      url,
       headers: {
-        ...getAuthorizationHeader({ operatorName, passwordMd5, path: `/`, bucketName }),
+        ...getAuthorizationHeader({ ...user, method, url }),
       },
     }, (error, response, body) => {
       if (error) reject(error)
@@ -25,12 +29,16 @@ export const checkAuth = ({bucketName = '', operatorName = '', password = ''} = 
   })
 }
 
-export const getListDirInfo = ({bucketName = '', operatorName = '', passwordMd5 = '', path = ''} = {}) => {
+// 获取目录列表信息
+export const getListDirInfo = (user, {remotePath = ''} = {}) => {
   return new Promise((resolve, reject) => {
+    const method = 'GET'
+    const url = `http://${DEFAULT_HOSTNAME}${getUri(user.bucketName)(remotePath)}`
     request({
-      url: `http://${DEFAULT_HOSTNAME}${getUri(bucketName)(path)}`,
+      method,
+      url,
       headers: {
-        ...getAuthorizationHeader({ operatorName, passwordMd5, path, bucketName }),
+        ...getAuthorizationHeader({ ...user, method, url }),
       },
     }, (error, response, body) => {
       if (error) reject(error)
@@ -38,17 +46,17 @@ export const getListDirInfo = ({bucketName = '', operatorName = '', passwordMd5 
         try {
           compose(
             resolve,
-            compose(assoc('path'), standardUri)(path),
+            compose(assoc('path'), standardUri)(remotePath),
             ifElse(
               isEmpty,
-              () => ({data: []}),
+              () => ({ data: [] }),
               compose(
                 objOf('data'),
                 compose(
                   map(converge(assoc, [
                     always('uri'),
                     converge(concat, [
-                      compose(concat(standardUri(path)) ,prop('filename')),
+                      compose(concat(standardUri(remotePath)), prop('filename')),
                       compose(ifElse(equals('F'), always('/'), always('')), prop('folderType')),
                     ]),
                     identity,
@@ -66,19 +74,34 @@ export const getListDirInfo = ({bucketName = '', operatorName = '', passwordMd5 
   })
 }
 
-export const upload = (
-  {bucketName = '', operatorName = '', passwordMd5 = '', path = ''} = {},
-  {localFilePath}
-) => {
-  console.log(path, 11)
+// 上传文件
+export const upload = (user, {localFilePath = '', remotePath = ''} = {}) => {
+  const url = `http://${DEFAULT_HOSTNAME}${getUri(user.bucketName)(remotePath)}${basename(localFilePath)}`
+  const method = 'PUT'
   fs.createReadStream(localFilePath)
     .pipe(request({
-      method: 'PUT',
-      url: `http://${DEFAULT_HOSTNAME}${getUri(bucketName)(path)}`,
+      method,
+      url,
       headers: {
-        ...getAuthorizationHeader({ operatorName, passwordMd5, path, bucketName, contentLength: fs.statSync(localFilePath).size }),
+        ...getAuthorizationHeader({ ...user, method, url, contentLength: fs.statSync(localFilePath).size }),
       },
     }, (error, response, body) => {
       console.log(error, response, body)
     }))
+}
+
+// 创建目录
+export const create = (user, {folderName = '', remotePath = ''} = {}) => {
+  const url = `http://${DEFAULT_HOSTNAME}${getUri(user.bucketName)(remotePath)}${folderName}/`
+  const method = 'POST'
+  request({
+    method,
+    url,
+    headers: {
+      folder: true,
+      ...getAuthorizationHeader({ ...user, method, url }),
+    },
+  }, (error, response, body) => {
+    console.log(error, response, body)
+  })
 }

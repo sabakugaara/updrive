@@ -15,7 +15,7 @@
       PageNav,
       PageMain,
     },
-    created () {
+    created() {
       this.$store.dispatch({ type: 'GET_LIST_DIR_INFO' })
         .then(result => {
           // console.log(result)

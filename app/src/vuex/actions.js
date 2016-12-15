@@ -16,12 +16,13 @@ export default {
       })
   },
   // 获取文件目录信息
-  [types.GET_LIST_DIR_INFO]({state, commit}, { path }) {
-    return Upyun.getListDirInfo({ path, ...state.user })
+  [types.GET_LIST_DIR_INFO]({state, commit}, { remotePath }) {
+    return Upyun.getListDirInfo(state.user, { remotePath })
       .then(result => {
         commit({
           type: types.SET_CURRENT_LIST,
-          data: result})
+          data: result
+        })
         return result
       })
       .catch(error => {
@@ -30,8 +31,8 @@ export default {
       })
   },
   // 获取文件目录信息
-  [types.UPLOAD_FILES]({state, commit}, { path, localFilePath }) {
-    return Upyun.upload({ path, ...state.user }, { localFilePath })
+  [types.UPLOAD_FILES]({state, commit}, { remotePath, localFilePath }) {
+    return Upyun.upload(state.user, { remotePath, localFilePath })
   },
 }
 

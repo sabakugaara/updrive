@@ -39,11 +39,11 @@
     methods: {
       submit() {
         const {operatorName, password, bucketName} = this
-        if(!(operatorName && password && bucketName)) return false
+        if (!(operatorName && password && bucketName)) return false
         this.$store
-          .dispatch({ type: 'VERIFICATION_ACCOUNT', bucketName, operatorName, password,})
+          .dispatch({ type: 'VERIFICATION_ACCOUNT', bucketName, operatorName, password, })
           .then(result => {
-            this.$router.push({ name: 'main'})
+            this.$router.push({ name: 'main' })
           })
           .catch(error => {
             alert(error)
