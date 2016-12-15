@@ -15,9 +15,14 @@
           <div class="file-info-item column-file-size">大小</div>
         </div>
         <div class="file-list-body">
-          <div class="file-list-item" v-for="(file, index) in list.dirInfo.data" :class="{
-              'item-selected': (listItemState[file.uri] && listItemState[file.uri].selected),
-            }" @click.stop="selectItem(file, $event, index, list.dirInfo.data)" @dblclick.stop="dblclickItem(file)">
+          <div
+            class="file-list-item"
+            v-for="(file, index) in list.dirInfo.data"
+            :class="{
+            'item-selected': (listItemState[file.uri] && listItemState[file.uri].selected),
+            }"
+            @click.stop="selectItem(file, $event, index, list.dirInfo.data)" @dblclick.stop="dblclickItem(file)"
+          >
             <div class="file-name file-info-item">
               <i class="file-icon" :class="{'icon-folder': file.folderType === 'F'}"></i>{{file.filename}}
             </div>
