@@ -62,7 +62,7 @@
             const getBacthFile = lastIndex < index ? slice(lastIndex, index + 1) : slice(index, lastIndex + 1)
             const addedList = pluck('uri', getBacthFile(data))
             return $event.ctrlKey ? concat(selected, addedList) : addedList
-          } elsnt.ctrlKey) {
+          } else if ($event.ctrlKey) {
             return !~selected.indexOf(uri) ? append(uri, selected) : remove(selected.indexOf(uri), 1, selected)
           } else {
             return [uri]
