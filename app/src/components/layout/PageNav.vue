@@ -7,7 +7,7 @@
         </a>
         <div class="dropmenu-list">
           <nav class="panel">
-            <a class="panel-block is-active" href="#">
+            <a class="panel-block" href="#" @click.prevent="createFolder">
               新建目录
             </a>
             <a class="panel-block" href="#" @click.prevent="uploadFile">
@@ -70,6 +70,9 @@
             alert(error)
           })
       },
+      createDirectory() {
+
+      },
       uploadFile() {
         return uploadFile()
           .then(filePaths => {
@@ -80,12 +83,14 @@
                 localFilePath: filePaths[0],
               })
           })
+          .then(() =>　this.$store.dispatch('REFRESH_LIST'))
       },
-      uploadDirectory() {
-        return uploadDirectory()
-          .then(filePaths => {
-            console.log('上传的文件夹是:', filePaths)
-          })
+      createFolder() {
+        return this.$store.commit('OPEN_CREATE_FOLDER_MODAL')
+        // return uploadDirectory()
+        //   .then(filePaths => {
+        //     console.log('上传的文件夹是:', filePaths)
+        //   })
       },
     }
   }

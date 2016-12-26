@@ -43,6 +43,7 @@ export const getListDirInfo = (user, {remotePath = ''} = {}) => {
     }, (error, response, body) => {
       if (error) reject(error)
       if (!error && response.statusCode === 200) {
+        console.log('目录刷新成功', {body: response.body, statusCode: response.statusCode})
         try {
           compose(
             resolve,
@@ -76,32 +77,49 @@ export const getListDirInfo = (user, {remotePath = ''} = {}) => {
 
 // 上传文件
 export const upload = (user, {localFilePath = '', remotePath = ''} = {}) => {
-  const url = `http://${DEFAULT_HOSTNAME}${getUri(user.bucketName)(remotePath)}${basename(localFilePath)}`
+  const url = encodeURI(`http://${DEFAULT_HOSTNAME}${getUri(user.bucketName)(remotePath)}${basename(localFilePath)}`)
   const method = 'PUT'
-  fs.createReadStream(localFilePath)
-    .pipe(request({
-      method,
-      url,
-      headers: {
-        ...getAuthorizationHeader({ ...user, method, url, contentLength: fs.statSync(localFilePath).size }),
-      },
-    }, (error, response, body) => {
-      console.log(error, response, body)
-    }))
+  return new Promise((resolve, reject) => {
+    fs.createReadStream(localFilePath)
+      .on('data', function (chunk) {
+        console.log(chunk.length, +new Date());
+      })
+      .pipe(request(
+        {
+          method,
+          url,
+          headers: {
+            ...getAuthorizationHeader({ ...user, method, url, contentLength: fs.statSync(localFilePath).size }),
+          },
+        },
+        (error, response, body) => {
+          if (error) reject(error)
+          // console.log(+new Date(), '完成')
+          // console.log(error, response, body)
+          // console.log('')
+          resolve(body)
+        }
+      ))
+  })
 }
 
 // 创建目录
-export const create = (user, {folderName = '', remotePath = ''} = {}) => {
-  const url = `http://${DEFAULT_HOSTNAME}${getUri(user.bucketName)(remotePath)}${folderName}/`
+export const createFolder = (user, {folderName = '', remotePath = ''} = {}) => {
+  const url = encodeURI(`http://${DEFAULT_HOSTNAME}${getUri(user.bucketName)(remotePath)}${folderName}/`)
   const method = 'POST'
-  request({
-    method,
-    url,
-    headers: {
-      folder: true,
-      ...getAuthorizationHeader({ ...user, method, url }),
-    },
-  }, (error, response, body) => {
-    console.log(error, response, body)
+  return new Promise((resolve, reject) => {
+    request({
+      method,
+      url,
+      headers: {
+        folder: true,
+        ...getAuthorizationHeader({ ...user, method, url }),
+      },
+    }, (error, response, body) => {
+      if (error) reject(error)
+      // console.log(error, response, body)
+      console.log(`文件夹: ${folderName} 创建成功`, {body: response.body, statusCode: response.statusCode})
+      resolve(body)
+    })
   })
 }

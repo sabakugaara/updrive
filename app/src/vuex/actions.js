@@ -30,9 +30,21 @@ export default {
         return Promise.reject(error)
       })
   },
-  // 获取文件目录信息
-  [types.UPLOAD_FILES]({state, commit}, { remotePath, localFilePath }) {
+  // 上传文件
+  [types.UPLOAD_FILES]({state, commit, dispatch}, { remotePath, localFilePath }) {
     return Upyun.upload(state.user, { remotePath, localFilePath })
+  },
+  // 创建目录
+  [types.CREATE_FOLDER]({state, commit, dispatch}, { remotePath, folderName }) {
+    return Upyun.createFolder(state.user, { remotePath, folderName })
+  },
+  // 刷新当前目录
+  [types.REFRESH_LIST]({state, commit, dispatch},{ remotePath } = {}) {
+    // console.log('刷新列表')
+    return dispatch({type: 'GET_LIST_DIR_INFO', remotePath: remotePath || state.list.dirInfo.path})
+      .then(data => {
+        // console.log(JSON.stringify(data))
+      })
   },
 }
 
