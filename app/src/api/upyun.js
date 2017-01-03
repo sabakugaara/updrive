@@ -89,14 +89,11 @@ export const upload = (user, {localFilePath = '', remotePath = ''} = {}) => {
           method,
           url,
           headers: {
-            ...getAuthorizationHeader({ ...user, method, url, contentLength: fs.statSync(localFilePath).size }),
+            ...getAuthorizationHeader({ ...user, method, url }),
           },
         },
         (error, response, body) => {
           if (error) reject(error)
-          // console.log(+new Date(), '完成')
-          // console.log(error, response, body)
-          // console.log('')
           resolve(body)
         }
       ))
