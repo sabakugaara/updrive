@@ -18,19 +18,12 @@ export const makeSign = ({method, uri, date, passwordMd5, operatorName} = {}) =>
 }
 
 export const getUri = (bucketName = '') => (path = '') => {
-  return encodeURI(`/${bucketName}${standardUri(path)}`)
+  return `/${bucketName}${standardUri(path)}`
 }
 
-// TODO 实现 Content-MD5 校验
+// @TODO 实现 Content-MD5 校验
 export const getAuthorizationHeader = ({method = 'GET', url = '', passwordMd5, operatorName} = {}) => {
   const date = (new Date()).toGMTString()
-  console.log(makeSign({
-    operatorName,
-    passwordMd5,
-    date,
-    uri: parse(url).pathname,
-    method: method.toUpperCase(),
-  }))
   return {
     Authorization: makeSign({
       operatorName,

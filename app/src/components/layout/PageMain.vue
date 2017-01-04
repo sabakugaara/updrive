@@ -2,8 +2,7 @@
   <div class="page-main">
     <main-menu></main-menu>
     <main-view></main-view>
-    <create-folder current-path="hello!" ></create-folder>
-
+    <create-folder></create-folder>
   </div>
 </template>
 

@@ -31,8 +31,12 @@ export default {
       })
   },
   // 上传文件
-  [types.UPLOAD_FILES]({state, commit, dispatch}, { remotePath, localFilePath }) {
-    return Upyun.upload(state.user, { remotePath, localFilePath })
+  [types.UPLOAD_FILES]({state, commit, dispatch}, { remotePath, localFilePaths }) {
+    return Upyun.uploadFiles(state.user, { remotePath, localFilePaths })
+  },
+  // 上传文件夹
+  [types.UPLOAD_FLODER]({state, commit, dispatch}, { remotePath, localFolderPaths }) {
+    return Upyun.uploadFloders(state.user, { remotePath, localFolderPaths })
   },
   // 创建目录
   [types.CREATE_FOLDER]({state, commit, dispatch}, { remotePath, folderName }) {

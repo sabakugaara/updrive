@@ -27,12 +27,6 @@
 <script>
   import { mapState } from 'vuex'
   export default {
-    props: {
-      currentPath: {
-        type: String,
-        required: true
-      }
-    },
     methods: {
       close() {
         this.$store.commit('CLOSE_CREATE_FOLDER_MODAL')

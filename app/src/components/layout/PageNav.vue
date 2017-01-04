@@ -8,7 +8,7 @@
         <div class="dropmenu-list">
           <nav class="panel">
             <a class="panel-block" href="#" @click.prevent="createFolder">
-              新建目录
+              文件夹
             </a>
             <a class="panel-block" href="#" @click.prevent="uploadFile">
               上传文件
@@ -57,7 +57,7 @@
       pathArray() {
         return compose(filter(identity), split('/'))(this.list.dirInfo.path)
       },
-      ...mapState(['user', 'list'])
+      ...mapState(['user', 'list']),
     },
     methods: {
       goto(index) {
@@ -70,9 +70,11 @@
             alert(error)
           })
       },
-      createDirectory() {
-
+      // 新建文件夹
+      createFolder() {
+        return this.$store.commit('OPEN_CREATE_FOLDER_MODAL')
       },
+      // 上传文件
       uploadFile() {
         return uploadFile()
           .then(filePaths => {
@@ -80,18 +82,22 @@
               .dispatch({
                 type: 'UPLOAD_FILES',
                 remotePath: this.pathArray,
-                localFilePath: filePaths[0],
+                localFilePaths: filePaths,
               })
           })
-          .then(() =>　this.$store.dispatch('REFRESH_LIST'))
       },
-      createFolder() {
-        return this.$store.commit('OPEN_CREATE_FOLDER_MODAL')
-        // return uploadDirectory()
-        //   .then(filePaths => {
-        //     console.log('上传的文件夹是:', filePaths)
-        //   })
-      },
+      // 上传文件夹
+      uploadDirectory() {
+        return uploadDirectory()
+          .then(folderPaths => {
+            return this.$store
+              .dispatch({
+                type: 'UPLOAD_FLODER',
+                remotePath: this.pathArray,
+                localFolderPaths: folderPaths,
+              })
+          })
+      }
     }
   }
 </script>
