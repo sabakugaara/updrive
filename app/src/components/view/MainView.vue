@@ -1,5 +1,49 @@
 <template>
   <div class="list-view">
+    <div class="list-operation">
+      <div class="list-operation-item" :class="listOperationItemClass">
+        <svg class="svg-icon">
+          <use xlink:href="#icon-link"></use>
+        </svg>
+        获取链接
+      </div>
+      <div class="list-operation-item" @click="downloadFile" :class="listOperationItemClass">
+        <svg class="svg-icon">
+          <use xlink:href="#icon-icondownload"></use>
+        </svg>
+        下载
+      </div>
+      <div class="list-operation-item" :class="listOperationItemClass">
+        <svg class="svg-icon">
+          <use xlink:href="#icon-browse"></use>
+        </svg>
+        预览
+      </div>
+      <div class="list-operation-item" @click="deleteFile" :class="listOperationItemClass">
+        <svg class="svg-icon">
+          <use xlink:href="#icon-delete"></use>
+        </svg>
+        删除
+      </div>
+      <div class="list-operation-item" :class="listOperationItemClass">
+        <svg class="svg-icon">
+          <use xlink:href="#icon-edit"></use>
+        </svg>
+        重命名
+      </div>
+      <div class="list-operation-item" :class="listOperationItemClass">
+        <svg class="svg-icon">
+          <use xlink:href="#icon-copy"></use>
+        </svg>
+        复制到
+      </div>
+      <div class="list-operation-item" :class="listOperationItemClass">
+        <svg class="svg-icon">
+          <use xlink:href="#icon-rfq"></use>
+        </svg>
+        移动到
+      </div>
+    </div>
     <div class="list">
       <div class="file-list">
         <div class="file-list-column">
@@ -15,14 +59,9 @@
           <div class="file-info-item column-file-size">大小</div>
         </div>
         <div class="file-list-body">
-          <div
-            class="file-list-item"
-            v-for="(file, index) in list.dirInfo.data"
-            :class="{
-            'item-selected': (listItemState[file.uri] && listItemState[file.uri].selected),
-            }"
-            @click.stop="selectItem(file, $event, index, list.dirInfo.data)" @dblclick.stop="dblclickItem(file)"
-          >
+          <div class="file-list-item" v-for="(file, index) in list.dirInfo.data" :class="{
+              'item-selected': (listItemState[file.uri] && listItemState[file.uri].selected),
+            }" @click.stop="selectItem(file, $event, index, list.dirInfo.data)" @dblclick.stop="dblclickItem(file)">
             <div class="file-name file-info-item">
               <i class="file-icon" :class="{'icon-folder': file.folderType === 'F'}"></i>{{file.filename}}
             </div>
@@ -43,12 +82,20 @@
   } from 'ramda'
   import { mapState, dispatch, commit } from 'vuex'
   import { timestamp, digiUnit } from '../../filters'
+  import { downloadFileDialog, messgaeDialog } from '../../api/electron.js'
 
   export default {
     computed: {
+      listOperationItemClass() {
+        return {
+          disabled: !this.selected.length
+        }
+      },
+      selected() {
+        return path(['list', 'selected'])(this) || []
+      },
       listItemState() {
-        const selected = path(['list', 'selected'])(this)
-        const setSelected = reduce((result, value) => assocPath([value, 'selected'], true)(result), __, selected)
+        const setSelected = reduce((result, value) => assocPath([value, 'selected'], true)(result), __, this.selected)
         return setSelected({})
       },
       ...mapState(['user', 'list']),
@@ -56,7 +103,7 @@
     methods: {
       selectItem({uri}, $event, index, data) {
         const getSelectedList = () => {
-          const selected = path(['list', 'selected'])(this)
+          const { selected } = this
           if ($event.shiftKey) {
             const lastIndex = findIndex(pipe(last, propEq('uri'))(selected), data)
             const getBacthFile = lastIndex < index ? slice(lastIndex, index + 1) : slice(index, lastIndex + 1)
@@ -67,26 +114,46 @@
           } else {
             return [uri]
           }
-    }
+        }
         this.$store.commit({ type: 'SET_SELECT_LIST', selected: getSelectedList() })
-  },
-  selectAll($event) {
-    console.log($event)
-  },
-  dblclickItem({ folderType, filename }) {
-    // 如果是文件夹,则打开目录
-    if (folderType === 'F') {
-      this.$store
-        .dispatch({ type: 'GET_LIST_DIR_INFO', remotePath: `${this.list.dirInfo.path}${filename}/` })
-        .then(result => { })
-        .catch(alert)
-    }
-  }
+      },
+      // 全选
+      selectAll($event) {
+        console.log($event)
+      },
+      // 双击
+      dblclickItem({ folderType, filename }) {
+        // 如果是文件夹,则打开目录
+        if (folderType === 'F') {
+          this.$store
+            .dispatch({ type: 'GET_LIST_DIR_INFO', remotePath: `${this.list.dirInfo.path}${filename}/` })
+            .then(result => { })
+            .catch(alert)
+        }
+      },
+      // 删除文件
+      deleteFile() {
+        const { selected } = this
+        console.log(selected)
+        return messgaeDialog({
+          title: 'merry',
+          buttons: [],
+          message: `确定要删除`,
+        })
+      },
+      // 下载文件
+      downloadFile() {
+        return downloadFileDialog()
+          .then(path => {
+            if (!path) return
+            console.log(path)
+          })
+      }
     },
-  filters: {
-    timestamp,
+    filters: {
+      timestamp,
       digiUnit,
     },
-  name: 'ListView'
+    name: 'ListView'
   }
 </script>

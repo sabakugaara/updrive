@@ -43,7 +43,7 @@ export default {
     return Upyun.createFolder(state.user, { remotePath, folderName })
   },
   // 刷新当前目录
-  [types.REFRESH_LIST]({state, commit, dispatch},{ remotePath } = {}) {
+  [types.REFRESH_LIST]({state, commit, dispatch}, { remotePath } = {}) {
     // console.log('刷新列表')
     return dispatch({type: 'GET_LIST_DIR_INFO', remotePath: remotePath || state.list.dirInfo.path})
       .then(data => {

@@ -6,7 +6,7 @@ const dialog = remote.dialog
 export const listenSelectAll = callback => ipcRenderer.on('SHORTCUT_SELECT_ALL', callback)
 
 // 上传文件
-export const uploadFile = (option = {}) => {
+export const uploadFileDialog = (option = {}) => {
   return new Promise((resolve, reject) => {
     dialog.showOpenDialog(
       remote.getCurrentWindow(),
@@ -16,14 +16,13 @@ export const uploadFile = (option = {}) => {
         properties: ['openFile', 'multiSelections'],
         ...option,
       },
-      filePaths => {
-        resolve(filePaths)
-      })
+      resolve,
+    )
   })
 }
 
 // 上传文件夹
-export const uploadDirectory = (option = {}) => {
+export const uploadDirectoryDialog = (option = {}) => {
   return new Promise((resolve, reject) => {
     dialog.showOpenDialog(
       remote.getCurrentWindow(),
@@ -33,8 +32,40 @@ export const uploadDirectory = (option = {}) => {
         properties: ['openDirectory', 'createDirectory', 'multiSelections', 'showHiddenFiles'],
         ...option,
       },
-      filePaths => {
-        resolve(filePaths)
-      })
+      resolve,
+    )
+  })
+}
+
+// 下载
+export const downloadFileDialog = (option = {}) => {
+  return new Promise((resolve, reject) => {
+    dialog.showOpenDialog(
+      remote.getCurrentWindow(),
+      {
+        title: '下载到',
+        buttonLabel: '保存',
+        properties: ['openDirectory', 'createDirectory', 'showHiddenFiles'],
+        ...option,
+      },
+      folderPaths => {
+        resolve(folderPaths && folderPaths[0])
+      },
+    )
+  })
+}
+
+// messgae
+export const messgaeDialog = (option = {}) => {
+  return new Promise((resolve, reject) => {
+    dialog.showMessageBox(
+      remote.getCurrentWindow(),
+      {
+        ...option,
+      },
+      folderPaths => {
+        resolve(folderPaths)
+      },
+    )
   })
 }

@@ -4,7 +4,37 @@
   display: flex;
   border-left: 1px solid #ccc;
   flex-direction: column;
-  background: #fff;
+  background: #FFF;
+}
+
+.list-operation {
+  height: 40px;
+  background-color: #F4F4F4;
+  display: flex;
+  align-items: center;
+  padding-left: 4px;
+  .list-operation-item {
+    color: #212121;
+    min-width: 22px;
+    font-size: 14px;
+    padding: 8px;
+    margin-right: 8px;
+    &:hover:not(.disabled) {
+      cursor: pointer;
+      background-color: #EAEAEA;
+    }
+    &.disabled {
+      color: #cacaca;
+      opacity: .7;
+      .svg-icon {
+        color: #00e1b2;
+      }
+    }
+    .svg-icon {
+      margin-right: 3px;
+      color: #00b89c;
+    }
+  }
 }
 
 .list {
@@ -27,10 +57,10 @@
   .file-list-header {
     background: #fff;
     position: absolute;
-    top: 0;
     color: #4c607a;
     font-size: 14px;
     display: flex;
+    top: 40px;
     width: calc(100% - 16px);
     .column-file-name {
       flex: 1;

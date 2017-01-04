@@ -40,6 +40,8 @@
   border-top: 1px solid #ccc;
   align-items: center;
   display: flex;
+  z-index: 1;
+  box-shadow: 0 2px 4px rgba(0,0,0,.2);
   background: #fafafa;
 }
 

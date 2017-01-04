@@ -48,7 +48,7 @@
   import { mapState } from 'vuex'
   import { take, split, identity, filter, compose, concat, join } from 'ramda'
 
-  import { uploadFile, uploadDirectory } from '../../api/electron.js'
+  import { uploadFileDialog, uploadDirectoryDialog } from '../../api/electron.js'
 
   const dialog = remote.dialog
 
@@ -76,8 +76,9 @@
       },
       // 上传文件
       uploadFile() {
-        return uploadFile()
+        return uploadFileDialog()
           .then(filePaths => {
+            if(!filePaths || !filePaths.length) return
             return this.$store
               .dispatch({
                 type: 'UPLOAD_FILES',
@@ -88,13 +89,13 @@
       },
       // 上传文件夹
       uploadDirectory() {
-        return uploadDirectory()
+        return uploadDirectoryDialog()
           .then(folderPaths => {
+            if(!folderPaths || !folderPaths.length) return
             return this.$store
               .dispatch({
                 type: 'UPLOAD_FLODER',
-                remotePath: this.pathArray,
-                localFolderPaths: folderPaths,
+                remotePath: this.pathArray, localFolderPaths: folderPaths,
               })
           })
       }

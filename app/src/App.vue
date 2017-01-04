@@ -8,6 +8,9 @@
   import * as filters from './filters'
   import { listenSelectAll } from './api/electron.js'
 
+  // 图标
+  import './assets/iconfont.js'
+
   export default {
     store,
     created() {
