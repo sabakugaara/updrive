@@ -48,8 +48,7 @@ export default {
   },
   // 删除文件
   [types.DELETE_FILE]({state, commit, dispatch}, { selectedPaths } = {}) {
-    console.log(selectedPaths)
-    return Upyun
+    return Upyun.deleteFiles(selectedPaths)
   },
 }
 

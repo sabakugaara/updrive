@@ -5,6 +5,7 @@
   "main": "electron.js",
   "dependencies": {
     "bulma": "^0.2.3",
+    "ftp": "^0.3.10",
     "moment": "^2.17.0",
     "ramda": "^0.22.1",
     "request": "^2.79.0",

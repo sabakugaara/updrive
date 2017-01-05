@@ -9,7 +9,7 @@ import store from '../vuex/store' // 不能解构, 因为这时 store 还没完�
 const DEFAULT_HOSTNAME = 'v0.api.upyun.com'
 
 export const getRequestOpts = ({ user = path(['state', 'user'], store), toUrl = '', method = 'GET', headers = {} } = {}) => {
-  const url = encodeURI(urlParse.resolve(`http://${DEFAULT_HOSTNAME}/${user.bucketName}/`, toUrl))
+  const url = urlParse.resolve(`http://${DEFAULT_HOSTNAME}/${user.bucketName}/`, encodeURIComponent(toUrl))
   const authHeader = getAuthorizationHeader({ ...user, method: method, url })
   return {
     method,
@@ -44,35 +44,33 @@ export const getListDirInfo = (remotePath = '') => {
       getRequestOpts({ method: 'GET', toUrl: remotePath }),
       (error, response, body) => {
         if (error) reject(error)
-        if (!error && response.statusCode === 200) {
-          console.info(`目录: ${remotePath} 刷新成功`, { body: response.body, statusCode: response.statusCode })
-          try {
-            compose(
-              resolve,
-              assoc('path', remotePath),
-              ifElse(
-                isEmpty,
-                () => ({ data: [] }),
+        if (response.statusCode !== 200) reject(body)
+        console.info(`目录: ${remotePath} 获取成功`, { body: response.body, statusCode: response.statusCode })
+        try {
+          compose(
+            resolve,
+            assoc('path', remotePath),
+            ifElse(
+              isEmpty,
+              () => ({ data: [] }),
+              compose(
+                objOf('data'),
                 compose(
-                  objOf('data'),
-                  compose(
-                    map(converge(assoc, [
-                      always('uri'),
-                      converge(concat, [
-                        compose(concat(remotePath), prop('filename')),
-                        compose(ifElse(equals('F'), always('/'), always('')), prop('folderType')),
-                      ]),
-                      identity,
-                    ])),
-                    map(compose(zipObj(['filename', 'folderType', 'size', 'lastModified']), split(/\t/))),
-                    split(/\n/))))
-            )(body)
-          } catch (err) {
-            reject(err)
-          }
-        } else {
-          reject(body)
+                  map(converge(assoc, [
+                    always('uri'),
+                    converge(concat, [
+                      compose(concat(remotePath), prop('filename')),
+                      compose(ifElse(equals('F'), always('/'), always('')), prop('folderType')),
+                    ]),
+                    identity,
+                  ])),
+                  map(compose(zipObj(['filename', 'folderType', 'size', 'lastModified']), split(/\t/))),
+                  split(/\n/))))
+          )(body)
+        } catch (err) {
+          reject(err)
         }
+
       })
   })
 }
@@ -89,6 +87,7 @@ export const upload = (remotePath = '', localFilePath = '', relativePath = '') =
         getRequestOpts({ method: 'PUT', toUrl: remotePath + relativePath + basename(localFilePath) }),
         (error, response, body) => {
           if (error) reject(error)
+          if (response.statusCode !== 200) reject(error)
           console.info(`文件: ${localFilePath} 上传成功`, { body: response.body, statusCode: response.statusCode })
           resolve(body)
         }
@@ -103,6 +102,7 @@ export const createFolder = (remotePath = '', folderName = '') => {
       getRequestOpts({ method: 'POST', toUrl: remotePath + folderName + '/', headers: { folder: true } }),
       (error, response, body) => {
         if (error) reject(error)
+        if (response.statusCode !== 200) reject(error)
         console.info(`文件夹: ${folderName} 创建成功`, { body: response.body, statusCode: response.statusCode })
         resolve(body)
       })
@@ -112,8 +112,7 @@ export const createFolder = (remotePath = '', folderName = '') => {
 // 上传多个文件
 // @TODO 控制并发数量
 export const uploadFiles = (remotePath = '', localFilePaths = []) => {
-  const uploadWithLocalPath = localFilePath => upload(remotePath, localFilePath)
-  for (const localPath of localFilePaths) uploadWithLocalPath(localPath)
+  for (const localPath of localFilePaths) upload(remotePath, localPath)
 }
 
 // 上传多个文件夹
@@ -147,27 +146,60 @@ export const uploadFloders = (remotePath, localFolderPaths = []) => {
 }
 
 // 删除文件
-export const deleteFile = (user, { remotePath } = {}) => {
-  const url = encodeURI(`http://${DEFAULT_HOSTNAME}${getUri(user.bucketName)(remotePath)}`)
-  const method = 'PUT'
+export const deleteFile = remotePath => {
   return new Promise((resolve, reject) => {
-    createReadStream(localFilePath)
-      .on('data', function (chunk) {
-        console.info(chunk.length, +new Date());
-      })
-      .pipe(request(
-        {
-          method,
-          url,
-          headers: {
-            ...getAuthorizationHeader({ ...user, method, url }),
-          },
-        },
-        (error, response, body) => {
-          if (error) reject(error)
-          console.info(`文件: ${localFilePath} 上传成功`, { body: response.body, statusCode: response.statusCode })
-          resolve(body)
-        }
-      ))
+    request(
+      getRequestOpts({ method: 'DELETE', toUrl: remotePath }),
+      (error, response, body) => {
+        if (error) reject(error)
+        if (response.statusCode !== 200) reject(body)
+        console.info(`文件: ${remotePath} 删除成功`, { body: response.body, statusCode: response.statusCode })
+        resolve(body)
+      }
+    )
   })
+}
+
+// 删除多个文件
+// @TODO 控制并发数量
+export const deleteFiles = async remotePaths => {
+  const waitDeleteFilePaths = []
+  const waitDeleteFolderPaths = []
+  // 递归遍历目录
+  const parseDir = async paths => {
+    for (const path of paths) {
+      try {
+        if (/\/$/.test(path)) {
+          const dirData = await getListDirInfo(path)
+          if (dirData && dirData.data) {
+            waitDeleteFolderPaths.push(path)
+            if (dirData.data.length) {
+              await parseDir(dirData.data.map(fileObj => fileObj.uri))
+            }
+          }
+        } else {
+          waitDeleteFilePaths.push(path)
+        }
+      } catch (err) {
+        console.error(err)
+      }
+    }
+  }
+  await parseDir(remotePaths)
+  // 删除文件
+  for (const remoteFilePath of waitDeleteFilePaths) {
+    try {
+      await deleteFile(remoteFilePath)
+    } catch (err) {
+      console.error(err)
+    }
+  }
+  // 删除文件夹
+  for (const remoteFloderPath of waitDeleteFolderPaths.reverse()) {
+    try {
+      await deleteFile(remoteFloderPath)
+    } catch (err) {
+      console.error(err)
+    }
+  }
 }
