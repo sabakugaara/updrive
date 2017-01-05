@@ -5,8 +5,9 @@ import { basename, join } from 'path'
 import urlParse from 'url'
 import { getAuthorizationHeader, md5sum, getUri, standardUri } from './tool.js'
 import store from '../vuex/store' // 不能解构, 因为这时 store 还没完成初始化
-
+import * as ftp from './ftpClient.js'
 const DEFAULT_HOSTNAME = 'v0.api.upyun.com'
+
 
 export const getRequestOpts = ({ user = path(['state', 'user'], store), toUrl = '', method = 'GET', headers = {} } = {}) => {
   const url = urlParse.resolve(`http://${DEFAULT_HOSTNAME}/${user.bucketName}/`, encodeURIComponent(toUrl))
@@ -39,6 +40,7 @@ export const checkAuth = user => {
 
 // 获取目录列表信息
 export const getListDirInfo = (remotePath = '') => {
+  ftp.getListDirInfo()
   return new Promise((resolve, reject) => {
     request(
       getRequestOpts({ method: 'GET', toUrl: remotePath }),

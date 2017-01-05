@@ -1,7 +1,7 @@
 import * as types from '../mutation-types'
 import { pickAll } from 'ramda'
 
-const state = pickAll(['bucketName', 'operatorName', 'passwordMd5'])(JSON.parse(localStorage.getItem('user')))
+const state = pickAll(['bucketName', 'operatorName', 'passwordMd5', 'password'])(JSON.parse(localStorage.getItem('user')))
 
 const mutations = {
   [types.SET_USER_INFO](state, payload = {}) {
