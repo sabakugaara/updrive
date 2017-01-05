@@ -83,6 +83,7 @@
   import { mapState, dispatch, commit } from 'vuex'
   import { timestamp, digiUnit } from '../../filters'
   import { downloadFileDialog, messgaeDialog } from '../../api/electron.js'
+  import { basename } from 'path'
 
   export default {
     computed: {
@@ -92,11 +93,14 @@
         }
       },
       selected() {
-        return path(['list', 'selected'])(this) || []
+        return path(['list', 'selected'], this) || []
       },
       listItemState() {
         const setSelected = reduce((result, value) => assocPath([value, 'selected'], true)(result), __, this.selected)
         return setSelected({})
+      },
+      currentDirPath() {
+        return path(['list', 'dirInfo', 'path'], this)
       },
       ...mapState(['user', 'list']),
     },
@@ -126,7 +130,7 @@
         // 如果是文件夹,则打开目录
         if (folderType === 'F') {
           this.$store
-            .dispatch({ type: 'GET_LIST_DIR_INFO', remotePath: `${this.list.dirInfo.path}${filename}/` })
+            .dispatch({ type: 'GET_LIST_DIR_INFO', remotePath: this.currentDirPath + filename + '/' })
             .then(result => { })
             .catch(alert)
         }
@@ -134,12 +138,18 @@
       // 删除文件
       deleteFile() {
         const { selected } = this
-        console.log(selected)
         return messgaeDialog({
-          title: 'merry',
-          buttons: [],
-          message: `确定要删除`,
+          title: '提示',
+          buttons: ['删除', '取消'],
+          defaultId: 1,
+          message: `确定要删除「${basename(selected[0])}」${selected.length > 1 ? `等${selected.length}个文件` : ''}吗?`,
+          detail: '操作后文件无法恢复',
         })
+          .then(index => {
+            if (index !== 0) return
+            this.$store
+              .dispatch({ type: 'DELETE_FILE', selectedPaths: selected })
+          })
       },
       // 下载文件
       downloadFile() {

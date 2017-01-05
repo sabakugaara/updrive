@@ -1,4 +1,4 @@
-import {filter, identity, split, compose, append, pluck} from 'ramda'
+import { filter, identity, split, compose, append, pluck } from 'ramda'
 import * as types from '../mutation-types'
 
 const state = {
@@ -10,7 +10,7 @@ const state = {
 }
 
 const mutations = {
-  [types.SET_CURRENT_LIST](state, {data, path, addPath}) {
+  [types.SET_CURRENT_LIST](state, { data }) {
     state.dirInfo = data
     state.selected = []
   },

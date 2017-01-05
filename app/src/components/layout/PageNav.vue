@@ -26,7 +26,7 @@
           <div @click.prevent.stop="goto()" class="path-item">{{user.bucketName}}</div>
         </div>
       </div>
-      <div v-for="(path, index) in pathArray">
+      <div v-for="(name, index) in pathArray">
         <div class="breadcrumb-bar">
           <div class="link-icon">
             <div class="link-icon-inner">
@@ -35,7 +35,7 @@
               </svg>
             </div>
           </div>
-          <div @click.prevent.stop="goto(index)" class="path-item">{{path}}</div>
+          <div @click.prevent.stop="goto(index)" class="path-item">{{name}}</div>
         </div>
       </div>
     </div>
@@ -46,7 +46,7 @@
 <script>
   import { remote } from 'electron'
   import { mapState } from 'vuex'
-  import { take, split, identity, filter, compose, concat, join } from 'ramda'
+  import { path, take, split, identity, filter, compose, concat, join } from 'ramda'
 
   import { uploadFileDialog, uploadDirectoryDialog } from '../../api/electron.js'
 
@@ -57,12 +57,16 @@
       pathArray() {
         return compose(filter(identity), split('/'))(this.list.dirInfo.path)
       },
+      currentDirPath() {
+        return path(['list', 'dirInfo', 'path'], this)
+      },
       ...mapState(['user', 'list']),
     },
     methods: {
       goto(index) {
+        const remotePath = index === undefined ? '' : concat(join('/', take(index + 1)(this.pathArray)), '/')
         return this.$store
-          .dispatch({ type: 'GET_LIST_DIR_INFO', remotePath: take(index + 1)(this.pathArray) })
+          .dispatch({ type: 'GET_LIST_DIR_INFO', remotePath })
           .then(result => {
             // console.log(result)
           })
@@ -78,11 +82,11 @@
       uploadFile() {
         return uploadFileDialog()
           .then(filePaths => {
-            if(!filePaths || !filePaths.length) return
+            if (!filePaths || !filePaths.length) return
             return this.$store
               .dispatch({
                 type: 'UPLOAD_FILES',
-                remotePath: this.pathArray,
+                remotePath: this.currentDirPath,
                 localFilePaths: filePaths,
               })
           })
@@ -91,11 +95,12 @@
       uploadDirectory() {
         return uploadDirectoryDialog()
           .then(folderPaths => {
-            if(!folderPaths || !folderPaths.length) return
+            if (!folderPaths || !folderPaths.length) return
             return this.$store
               .dispatch({
                 type: 'UPLOAD_FLODER',
-                remotePath: this.pathArray, localFolderPaths: folderPaths,
+                remotePath: this.currentDirPath,
+                localFolderPaths: folderPaths,
               })
           })
       }

@@ -61,11 +61,12 @@ export const messgaeDialog = (option = {}) => {
     dialog.showMessageBox(
       remote.getCurrentWindow(),
       {
+        buttons: [],
+        cancelId: -1,
+        noLink: true,
         ...option,
       },
-      folderPaths => {
-        resolve(folderPaths)
-      },
+      resolve,
     )
   })
 }

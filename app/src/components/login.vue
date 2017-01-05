@@ -32,7 +32,6 @@
 </template>
 
 <script>
-  import store from 'src/vuex/store'
   import { mapState } from 'vuex'
 
   export default {

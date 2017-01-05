@@ -20,9 +20,9 @@
         .then(result => {
           // console.log(result)
         })
-        .catch(error => {
-          console.log(error)
-        })
+        // .catch(error => {
+        //   console.log(error)
+        // })
     },
     computed: {
       ...mapState(['user']),
