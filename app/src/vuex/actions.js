@@ -17,7 +17,6 @@ export default {
   },
   // 获取文件目录信息
   [types.GET_LIST_DIR_INFO]({state, commit}, { remotePath }) {
-    console.log(remotePath)
     return Upyun.getListDirInfo(remotePath)
       .then(result => {
         commit({
@@ -33,15 +32,15 @@ export default {
   },
   // 上传文件
   [types.UPLOAD_FILES]({state, commit, dispatch}, { remotePath, localFilePaths }) {
-    return Upyun.uploadFiles({ remotePath, localFilePaths })
+    return Upyun.uploadFiles(remotePath, localFilePaths)
   },
   // 上传文件夹
   [types.UPLOAD_FLODER]({state, commit, dispatch}, { remotePath, localFolderPaths }) {
-    return Upyun.uploadFloders({ remotePath, localFolderPaths })
+    return Upyun.uploadFloders(remotePath, localFolderPaths)
   },
   // 创建目录
   [types.CREATE_FOLDER]({state, commit, dispatch}, { remotePath, folderName }) {
-    return Upyun.createFolder({ remotePath, folderName })
+    return Upyun.createFolder(remotePath, folderName)
   },
   // 刷新当前目录
   [types.REFRESH_LIST]({state, commit, dispatch}, { remotePath } = {}) {

@@ -79,7 +79,7 @@ export const getListDirInfo = (remotePath = '') => {
 
 // 上传文件
 // relativePath 是相对当前目录的路径
-export const upload = ({localFilePath = '', remotePath = '', relativePath = ''} = {}) => {
+export const upload = (remotePath = '', localFilePath = '', relativePath = '') => {
   return new Promise((resolve, reject) => {
     createReadStream(localFilePath)
       .on('data', function (chunk) {
@@ -97,7 +97,7 @@ export const upload = ({localFilePath = '', remotePath = '', relativePath = ''} 
 }
 
 // 创建目录
-export const createFolder = ({folderName = '', remotePath = ''} = {}) => {
+export const createFolder = (remotePath = '', folderName = '') => {
   return new Promise((resolve, reject) => {
     request(
       getRequestOpts({ method: 'POST', toUrl: remotePath + folderName + '/', headers: { folder: true } }),
@@ -111,16 +111,14 @@ export const createFolder = ({folderName = '', remotePath = ''} = {}) => {
 
 // 上传多个文件
 // @TODO 控制并发数量
-export const uploadFiles = ({ localFilePaths = [], remotePath = '' } = {}) => {
-  const uploadWithLocalPath = localFilePath => upload({ localFilePath, remotePath })
+export const uploadFiles = (remotePath = '', localFilePaths = []) => {
+  const uploadWithLocalPath = localFilePath => upload(remotePath, localFilePath)
   for (const localPath of localFilePaths) uploadWithLocalPath(localPath)
 }
 
 // 上传多个文件夹
 // @TODO 控制并发数量
-export const uploadFloders = ({ localFolderPaths = [], remotePath = '' } = {}) => {
-  const uploadWithLocalPathAndRelativePath = pathObj => upload({ remotePath, ...pathObj })
-  const createFolderWithD = pathObj => upload({ remotePath, ...pathObj })
+export const uploadFloders = (remotePath, localFolderPaths = []) => {
   const result = []
   // 递归遍历目录
   // const parseFolder = (nodes, fromPath) => {
@@ -144,8 +142,8 @@ export const uploadFloders = ({ localFolderPaths = [], remotePath = '' } = {}) =
     }
   }
   for (const pathObj of result) statSync(pathObj.localFilePath).isFile() ?
-    upload({ remotePath, ...pathObj }) :
-    createFolder({ remotePath, folderName: pathObj.relativePath + basename(pathObj.localFilePath) })
+    upload(remotePath, pathObj.localFilePath, pathObj.relativePath) :
+    createFolder(remotePath, pathObj.relativePath + basename(pathObj.localFilePath))
 }
 
 // 删除文件
