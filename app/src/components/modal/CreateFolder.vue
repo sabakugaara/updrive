@@ -32,7 +32,7 @@
         this.$store.commit('CLOSE_CREATE_FOLDER_MODAL')
       },
       enter(el) {
-        setTimeout(() => { el.querySelector('input[autofocus]').focus()})
+        this.$nextTick(() => { el.querySelector('input[autofocus]').focus()})
       },
       submit() {
         this.$store

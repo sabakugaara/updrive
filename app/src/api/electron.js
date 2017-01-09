@@ -1,6 +1,19 @@
 import { ipcRenderer, remote } from 'electron'
 
-const dialog = remote.dialog
+const {dialog, Menu, MenuItem} = remote
+
+// 创建右键菜单
+export const createContextmenu = ({ appendItems } = {}) => {
+  const menu = new Menu()
+  for (const menuItem of appendItems) menu.append(new MenuItem(menuItem))
+  return menu
+}
+
+// 显示右键菜单
+export const showContextmenu = (items, opts = {}) => {
+  const menu = createContextmenu(items)
+  setTimeout(() => menu.popup(remote.getCurrentWindow()))
+}
 
 // 监听 Ctrl + A
 export const listenSelectAll = callback => ipcRenderer.on('SHORTCUT_SELECT_ALL', callback)

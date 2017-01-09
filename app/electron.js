@@ -2,9 +2,10 @@
 
 const electron = require('electron')
 const path = require('path')
-const app = electron.app
 const localshortcut = require('electron-localshortcut')
+
 const BrowserWindow = electron.BrowserWindow
+const app = electron.app
 
 let mainWindow
 let config = {}
@@ -17,7 +18,7 @@ if (process.env.NODE_ENV === 'development') {
   config.url = `file://${__dirname}/dist/index.html`
 }
 
-function createWindow () {
+function createWindow() {
   /**
    * Initial window options
    */
@@ -40,7 +41,7 @@ function createWindow () {
       .catch((err) => console.log('An error occurred: ', err))
   }
 
-  mainWindow.on('close',  () => {
+  mainWindow.on('close', () => {
     localshortcut.unregister(mainWindow, 'Ctrl+A')
   })
 

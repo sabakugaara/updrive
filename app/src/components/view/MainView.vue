@@ -59,9 +59,16 @@
           <div class="file-info-item column-file-size">大小</div>
         </div>
         <div class="file-list-body">
-          <div class="file-list-item" v-for="(file, index) in list.dirInfo.data" :class="{
+          <div
+            class="file-list-item"
+            v-for="(file, index) in list.dirInfo.data"
+            :class="{
               'item-selected': (listItemState[file.uri] && listItemState[file.uri].selected),
-            }" @click.stop="selectItem(file, $event, index, list.dirInfo.data)" @dblclick.stop="dblclickItem(file)">
+            }"
+            @click.stop="selectItem(file, $event, index, list.dirInfo.data)"
+            @dblclick.stop="dblclickItem(file)"
+            @contextmenu.prevent="contextmenu(file)"
+          >
             <div class="file-name file-info-item">
               <i class="file-icon" :class="{'icon-folder': file.folderType === 'F'}"></i>{{file.filename}}
             </div>
@@ -82,7 +89,7 @@
   } from 'ramda'
   import { mapState, dispatch, commit } from 'vuex'
   import { timestamp, digiUnit } from '../../filters'
-  import { downloadFileDialog, messgaeDialog } from '../../api/electron.js'
+  import { downloadFileDialog, messgaeDialog, createContextmenu, showContextmenu } from '../../api/electron.js'
   import { basename } from 'path'
 
   export default {
@@ -120,6 +127,19 @@
           }
         }
         this.$store.commit({ type: 'SET_SELECT_LIST', selected: getSelectedList() })
+      },
+      // 右键点击
+      contextmenu({uri}) {
+        this.$store.commit({ type: 'SET_SELECT_LIST', selected: [uri] })
+        this.$nextTick(this.showContextMenu)
+      },
+      // 显示菜单
+      showContextMenu() {
+        showContextmenu({
+          appendItems: [
+            { label: 'MenuItem1', click: function() { console.log('item 1 clicked'); } }
+          ]
+        })
       },
       // 全选
       selectAll($event) {

@@ -18,8 +18,7 @@ export default {
   },
   // 获取文件目录信息
   [types.GET_LIST_DIR_INFO]({state, commit}, { remotePath }) {
-    // return Upyun.getListDirInfo(remotePath)
-    return UpyunFtp.getListDirInfo(remotePath)
+    return Upyun.getListDirInfo(remotePath)
       .then(result => {
         commit({
           type: types.SET_CURRENT_LIST,
