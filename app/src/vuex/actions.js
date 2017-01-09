@@ -1,6 +1,7 @@
 import { join, append, compose, unless, isEmpty } from 'ramda'
 import * as types from './mutation-types'
 import * as Upyun from '../api/upyun.js'
+import * as UpyunFtp from '../api/ftpClient.js'
 
 export default {
   // 登录
@@ -17,7 +18,8 @@ export default {
   },
   // 获取文件目录信息
   [types.GET_LIST_DIR_INFO]({state, commit}, { remotePath }) {
-    return Upyun.getListDirInfo(remotePath)
+    // return Upyun.getListDirInfo(remotePath)
+    return UpyunFtp.getListDirInfo(remotePath)
       .then(result => {
         commit({
           type: types.SET_CURRENT_LIST,
