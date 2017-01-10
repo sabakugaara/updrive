@@ -25,11 +25,11 @@
         </svg>
         删除
       </div>
-      <div class="list-operation-item" :class="listOperationItemClass">
+      <div class="list-operation-item" @click="renameFile" :class="listOperationItemClass">
         <svg class="svg-icon">
           <use xlink:href="#icon-edit"></use>
         </svg>
-        重命名
+        修改路径
       </div>
       <div class="list-operation-item" :class="listOperationItemClass">
         <svg class="svg-icon">
@@ -88,9 +88,10 @@
     range, pick, merge, converge, length, not, __, reduce, identity, findIndex, last, pipe, propEq, slice, uri, pluck, concat, remove, append
   } from 'ramda'
   import { mapState, dispatch, commit } from 'vuex'
+  import { basename } from 'path'
+
   import { timestamp, digiUnit } from '../../filters'
   import { downloadFileDialog, messgaeDialog, createContextmenu, showContextmenu } from '../../api/electron.js'
-  import { basename } from 'path'
 
   export default {
     computed: {
@@ -137,7 +138,17 @@
       showContextMenu() {
         showContextmenu({
           appendItems: [
-            { label: 'MenuItem1', click: function() { console.log('item 1 clicked'); } }
+            { label: '打开', click: () => console.log('item 1 clicked') },
+            { label: '预览', click: () => console.log('item 1 clicked') },
+            { type: 'separator' },
+            { label: '修改路径...', click: () => this.renameFile() },
+            { label: '移至...', click: () => console.log('item 1 clicked') },
+            { type: 'separator' },
+            { label: '获取链接', click: () => console.log('item 1 clicked') },
+            { label: '查看详细信息', click: () => console.log('item 1 clicked') },
+            { label: '下载', click: () => console.log('item 1 clicked') },
+            { type: 'separator' },
+            { label: '删除', click: () => this.deleteFile() },
           ]
         })
       },
@@ -178,6 +189,10 @@
             if (!path) return
             console.log(path)
           })
+      },
+      // 修改路径
+      renameFile() {
+        return this.$store.commit('OPEN_RENAME_FILE_MODAL')
       }
     },
     filters: {

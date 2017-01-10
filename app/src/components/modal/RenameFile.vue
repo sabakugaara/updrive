@@ -1,0 +1,55 @@
+<template>
+  <transition name="fade" v-on:enter="enter">
+    <div class="modal modal-rename is-active" v-show="modal.renameFile.show" tabindex="1" @keyup.esc="close" @keyup.enter="submit">
+      <div class="modal-background"></div>
+      <div class="modal-content">
+        <div class="modal-header">
+          <span class="modal-title">修改路径</span>
+          <span class="modal-close-button" @click="close">
+            <svg x="0px" y="0px" width="10px" height="10px" viewBox="0 0 10 10" focusable="false">
+              <polygon class="a-s-fa-Ha-pa" fill="#000000" points="10,1.01 8.99,0 5,3.99 1.01,0 0,1.01 3.99,5 0,8.99 1.01,10 5,6.01 8.99,10 10,8.99 6.01,5 "></polygon>
+            </svg>
+          </span>
+        </div>
+        <div class="modal-body">
+          <p style="margin-bottom: 10px;">请输入新的文件路径：</p>
+          <p class="control has-addons">
+            <a class="button" disabled>
+              {{user.bucketName}}/
+            </a>
+            <input style="width:100%;" class="input" autofocus type="text" v-model="filePaths" placeholder="请输入新的文件路径">
+          </p>
+        </div>
+        <div class="modal-footer">
+          <button class="button is-primary" @click="submit">保存</button>
+        </div>
+      </div>
+    </div>
+  </transition>
+</template>
+
+<script>
+  import { mapState } from 'vuex'
+  export default {
+    methods: {
+      close() {
+        this.$store.commit('CLOSE_RENAME_FILE_MODAL')
+      },
+      enter(el) {
+        this.$nextTick(() => { el.querySelector('input[autofocus]').focus()})
+      },
+      submit() {
+        // this.$store
+        //   .dispatch({ type: 'CREATE_FOLDER', folderName: this.folderName, remotePath: this.list.dirInfo.path})
+        //   .then(() => this.close())
+        //   .then(() => this.$store.dispatch('REFRESH_LIST'))
+      }
+    },
+    created() {
+      this.filePaths = '哈哈哈哈'
+    },
+    computed: {
+      ...mapState(['user', 'modal', 'list']),
+    }
+  }
+</script>

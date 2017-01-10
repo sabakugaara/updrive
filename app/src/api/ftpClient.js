@@ -63,7 +63,23 @@ export const deleteFiles = async (remotePaths = '') => {
         if (err) throw err
         console.log(cwd)
         resolve()
-      client.end()
+        client.end()
+      })
+    })
+  } catch (err) {
+    client.end()
+    return Promise.reject(err)
+  }
+}
+
+export const renameFile = async (remotePaths = '') => {
+  await connect()
+  try {
+    return new Promise((resolve, reject) => {
+      client.rename(oldPaths, newPaths, err => {
+        if (err) throw err
+        resolve()
+        client.end()
       })
     })
   } catch (err) {
