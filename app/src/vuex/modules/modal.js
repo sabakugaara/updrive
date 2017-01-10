@@ -6,7 +6,8 @@ const state = {
     show: false
   },
   renameFile: {
-    show: false
+    show: false,
+    oldPath: '',
   },
 }
 
@@ -22,6 +23,12 @@ const mutations = {
   },
   [types.CLOSE_RENAME_FILE_MODAL](state) {
     state.renameFile.show = false
+  },
+  [types.RENAME_FILE_SET_OLD_PATH](state, oldPath) {
+    state.renameFile.oldPath = oldPath
+  },
+  [types.RENAME_FILE_CLEAR_OLD_PATH](state) {
+    state.renameFile.oldPath = ''
   }
 }
 

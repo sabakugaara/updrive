@@ -76,7 +76,7 @@ export const renameFile = async (remotePaths = '') => {
   await connect()
   try {
     return new Promise((resolve, reject) => {
-      client.rename(oldPaths, newPaths, err => {
+      client.rename(oldPath, newPath, err => {
         if (err) throw err
         resolve()
         client.end()

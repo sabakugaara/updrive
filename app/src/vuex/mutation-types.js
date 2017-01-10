@@ -12,6 +12,9 @@ export const CLOSE_CREATE_FOLDER_MODAL = 'CLOSE_CREATE_FOLDER_MODAL' // 关闭�
 export const OPEN_RENAME_FILE_MODAL = 'OPEN_RENAME_FILE_MODAL' // 打开修改路径 modal
 export const CLOSE_RENAME_FILE_MODAL = 'CLOSE_RENAME_FILE_MODAL' // 关闭修改路径 modal
 
+export const RENAME_FILE_SET_OLD_PATH = 'RENAME_FILE_SET_OLD_PATH' // 设置 oldpath
+export const RENAME_FILE_CLEAR_OLD_PATH = 'RENAME_FILE_CLEAR_OLD_PATH' // 清除 oldpath
+
 // actions
 export const VERIFICATION_ACCOUNT = 'VERIFICATION_ACCOUNT' // 验证账号
 export const GET_LIST_DIR_INFO = 'GET_LIST_DIR_INFO' // 获取列表信息
@@ -20,3 +23,4 @@ export const UPLOAD_FLODER = 'UPLOAD_FLODER' // 上传目录
 export const CREATE_FOLDER = 'CREATE_FOLDER' // 创建文件夹
 export const REFRESH_LIST = 'REFRESH_LIST' // 刷新当前目录
 export const DELETE_FILE = 'DELETE_FILE' // 删除文件
+export const RENAME_FILE = 'RENAME_FILE' // 重命名文件

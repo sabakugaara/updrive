@@ -39,14 +39,14 @@
         this.$nextTick(() => { el.querySelector('input[autofocus]').focus()})
       },
       submit() {
-        // this.$store
-        //   .dispatch({ type: 'CREATE_FOLDER', folderName: this.folderName, remotePath: this.list.dirInfo.path})
-        //   .then(() => this.close())
-        //   .then(() => this.$store.dispatch('REFRESH_LIST'))
+        this.$store
+          .dispatch({ type: 'RENAME_FILE', oldPath: this.modal.renameFile.oldPath, newPath: this.list.dirInfo.path})
+          .then(() => this.close())
+          .then(() => this.$store.dispatch('REFRESH_LIST'))
       }
     },
     created() {
-      this.filePaths = '哈哈哈哈'
+      this.filePaths = this.modal.renameFile.oldPath
     },
     computed: {
       ...mapState(['user', 'modal', 'list']),

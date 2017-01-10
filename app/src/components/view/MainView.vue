@@ -192,7 +192,10 @@
       },
       // 修改路径
       renameFile() {
-        return this.$store.commit('OPEN_RENAME_FILE_MODAL')
+        const { selected } = this
+        if(selected && selected.length !== 1) return
+        this.$store.commit('RENAME_FILE_SET_OLD_PATH', selected[0])
+        this.$store.commit('OPEN_RENAME_FILE_MODAL')
       }
     },
     filters: {
