@@ -17,7 +17,7 @@
             <a class="button" disabled>
               {{user.bucketName}}/
             </a>
-            <input style="width:100%;" class="input" autofocus type="text" v-model="filePaths" placeholder="请输入新的文件路径">
+            <input style="width:100%;" class="input" autofocus type="text" v-model="filePath" placeholder="请输入新的文件路径">
           </p>
         </div>
         <div class="modal-footer">
@@ -40,13 +40,20 @@
       },
       submit() {
         this.$store
-          .dispatch({ type: 'RENAME_FILE', oldPath: this.modal.renameFile.oldPath, newPath: this.list.dirInfo.path})
+          .dispatch({ type: 'RENAME_FILE', oldPath: this.modal.renameFile.oldPath, newPath: this.filePath, isFolder: this.isFolder})
           .then(() => this.close())
           .then(() => this.$store.dispatch('REFRESH_LIST'))
       }
     },
     created() {
-      this.filePaths = this.modal.renameFile.oldPath
+      const tailReg = /\/$/
+      if(tailReg.test(this.modal.renameFile.oldPath)) {
+        this.filePath = this.modal.renameFile.oldPath.replace(tailReg, '')
+        this.isFolder = true
+      } else {
+        this.filePath = this.modal.renameFile.oldPath
+        this.isFolder = false
+      }
     },
     computed: {
       ...mapState(['user', 'modal', 'list']),

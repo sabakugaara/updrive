@@ -51,5 +51,9 @@ export default {
   [types.DELETE_FILE]({ state, commit, dispatch}, { selectedPaths } = {}) {
     return Upyun.deleteFiles(selectedPaths)
   },
+  // 修改路径
+  [types.RENAME_FILE]({ state, commit, dispatch}, { oldPath, newPath, isFolder } = {}) {
+    return isFolder ? UpyunFtp.renameFolder(oldPath, newPath) : UpyunFtp.renameFile(oldPath, newPath)
+  },
 }
 

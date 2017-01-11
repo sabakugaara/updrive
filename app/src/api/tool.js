@@ -36,6 +36,8 @@ export const getAuthorizationHeader = ({method = 'GET', url = '', passwordMd5, o
   }
 }
 
+export const sleep = (ms = 0) => new Promise(r => setTimeout(r, ms));
+
 
 
 

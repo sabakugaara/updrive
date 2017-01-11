@@ -1,7 +1,9 @@
 import { path, split, map, zipObj, compose, objOf, ifElse, isEmpty, assoc, replace, converge, always, prop, concat, identity, __, equals } from 'ramda'
 import moment from 'moment'
 import Ftp from 'ftp'
+
 import store from '../vuex/store'
+import { traverseDir } from './upyun'
 
 const client = new Ftp()
 
@@ -26,33 +28,41 @@ const connect = () => {
   })
 }
 
+const end = () => {
+  client.end()
+}
+
+export const getListDirInfoPromise = remotePath => {
+  return new Promise((resolve, reject) => {
+    client.list(remotePath, function (err, list) {
+      if (err) throw err
+      const data = list.map(file => {
+        const filename = Buffer.from(file.name, 'binary').toString()
+        return {
+          filename,
+          folderType: file.type === 'd' ? 'F' : 'N',
+          lastModified: moment(file.date).unix(),
+          size: file.size,
+          uri: remotePath + filename + (file.type === 'd' ? '/' : '')
+        }
+      })
+      const result = { data, path: remotePath }
+      resolve(result)
+    })
+  })
+}
 
 export const getListDirInfo = async (remotePath = '') => {
   await connect()
-  try {
-    return new Promise((resolve, reject) => {
-      client.list(remotePath, function (err, list) {
-        if (err) throw err
-        const data = list.map(file => {
-          const filename = Buffer.from(file.name, 'binary').toString()
-          return {
-            filename,
-            folderType: file.type === 'd' ? 'F' : 'N',
-            lastModified: moment(file.date).unix(),
-            size: file.size,
-            uri: remotePath + filename + (file.type === 'd' ? '/' : '')
-          }
-        })
-        const result = { data, path: remotePath }
-        console.info(`目录: ${remotePath} 获取成功`, result)
-        resolve(result)
-        client.end()
-      })
+  return getListDirInfoPromise(remotePath)
+    .then(() => {
+      console.info(`目录: ${remotePath} 获取成功`, result)
+      end()
     })
-  } catch (err) {
-    client.end()
-    return Promise.reject(err)
-  }
+    .catch(() => {
+      end()
+      return Promise.reject(err)
+    })
 }
 
 export const deleteFiles = async (remotePaths = '') => {
@@ -61,29 +71,55 @@ export const deleteFiles = async (remotePaths = '') => {
     return new Promise((resolve, reject) => {
       client.rmdir(remotePaths, true, (err, cwd) => {
         if (err) throw err
-        console.log(cwd)
         resolve()
-        client.end()
+        end()
       })
     })
   } catch (err) {
-    client.end()
+    end()
     return Promise.reject(err)
   }
 }
 
-export const renameFile = async (remotePaths = '') => {
+export const renamePromise = (oldPath, newPath) => {
+  return new Promise(async (resolve, reject) => {
+    client.rename(oldPath, newPath, err => {
+      if (err) throw err
+      resolve()
+    })
+  })
+}
+
+export const renameFile = async (oldPath, newPath) => {
+  await connect()
+  return renamePromise(oldPath, newPath)
+    .then(() => {
+      console.info('路径修改成功', `${oldPath} => ${newPath}`)
+      end()
+    })
+    .catch((err) => {
+      end()
+      return Promise.reject(err)
+    })
+}
+
+
+export const renameFolder = async (oldPath, newPath) => {
   await connect()
   try {
-    return new Promise((resolve, reject) => {
-      client.rename(oldPath, newPath, err => {
-        if (err) throw err
-        resolve()
-        client.end()
-      })
+    return new Promise(async (resolve, reject) => {
+      const dir = await traverseDir(oldPath)
+      for (const remoteFilePath of dir) {
+        client.rename(oldPath, newPath, err => {
+          if (err) throw err
+          console.info('路径修改成功', `${oldPath} => ${newPath}`)
+          resolve()
+          end()
+        })
+      }
     })
   } catch (err) {
-    client.end()
+    end()
     return Promise.reject(err)
   }
 }
