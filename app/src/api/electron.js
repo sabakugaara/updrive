@@ -1,6 +1,17 @@
-import { ipcRenderer, remote } from 'electron'
-
+import { ipcRenderer, remote, shell, BrowserWindow } from 'electron'
 const {dialog, Menu, MenuItem} = remote
+
+
+// 打开外部链接
+export const openExternal = shell.openExternal
+
+export const windowOpen = (url, frameName, features) => {
+  let child = new BrowserWindow({ parent: remote.getCurrentWindow(), modal: true, show: false })
+  child.loadURL('https://github.com')
+  child.once('ready-to-show', () => {
+    child.show()
+  })
+}
 
 // 创建右键菜单
 export const createContextmenu = ({ appendItems } = {}) => {

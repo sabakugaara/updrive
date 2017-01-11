@@ -31,18 +31,6 @@
         </svg>
         修改路径
       </div>
-      <div class="list-operation-item" :class="listOperationItemClass">
-        <svg class="svg-icon">
-          <use xlink:href="#icon-copy"></use>
-        </svg>
-        复制到
-      </div>
-      <div class="list-operation-item" :class="listOperationItemClass">
-        <svg class="svg-icon">
-          <use xlink:href="#icon-rfq"></use>
-        </svg>
-        移动到
-      </div>
     </div>
     <div class="list">
       <div class="file-list">
@@ -66,7 +54,7 @@
               'item-selected': (listItemState[file.uri] && listItemState[file.uri].selected),
             }"
             @click.stop="selectItem(file, $event, index, list.dirInfo.data)"
-            @dblclick.stop="dblclickItem(file)"
+            @dblclick.stop="dblclickItem(file.uri)"
             @contextmenu.prevent="contextmenu(file)"
           >
             <div class="file-name file-info-item">
@@ -87,11 +75,10 @@
     assocPath, map, compose, assoc, path, cond, and, prop, both, T, always, keys, filter, apply,
     range, pick, merge, converge, length, not, __, reduce, identity, findIndex, last, pipe, propEq, slice, uri, pluck, concat, remove, append
   } from 'ramda'
-  import { mapState, dispatch, commit } from 'vuex'
+  import { mapState, mapGetters, dispatch, commit } from 'vuex'
   import { basename } from 'path'
-
   import { timestamp, digiUnit } from '../../filters'
-  import { downloadFileDialog, messgaeDialog, createContextmenu, showContextmenu } from '../../api/electron.js'
+  import { downloadFileDialog, messgaeDialog, createContextmenu, showContextmenu, openExternal, windowOpen } from '../../api/electron.js'
 
   export default {
     computed: {
@@ -99,6 +86,11 @@
         return {
           disabled: !this.selected.length
         }
+      },
+      uniqueSelectedUri() {
+        const { selected } = this
+        if(selected && selected.length !== 1) return ''
+        return selected[0]
       },
       selected() {
         return path(['list', 'selected'], this) || []
@@ -111,6 +103,7 @@
         return path(['list', 'dirInfo', 'path'], this)
       },
       ...mapState(['user', 'list']),
+      ...mapGetters(['cname']),
     },
     methods: {
       selectItem({uri}, $event, index, data) {
@@ -138,12 +131,9 @@
       showContextMenu() {
         showContextmenu({
           appendItems: [
-            { label: '打开', click: () => console.log('item 1 clicked') },
-            { label: '预览', click: () => console.log('item 1 clicked') },
+            { label: '打开', click: () => this.dblclickItem(this.uniqueSelectedUri)},
             { type: 'separator' },
             { label: '修改路径...', click: () => this.renameFile() },
-            { label: '移至...', click: () => console.log('item 1 clicked') },
-            { type: 'separator' },
             { label: '获取链接', click: () => console.log('item 1 clicked') },
             { label: '查看详细信息', click: () => console.log('item 1 clicked') },
             { label: '下载', click: () => console.log('item 1 clicked') },
@@ -157,13 +147,15 @@
         console.log($event)
       },
       // 双击
-      dblclickItem({ folderType, filename }) {
+      dblclickItem(uri = '') {
         // 如果是文件夹,则打开目录
-        if (folderType === 'F') {
-          this.$store
-            .dispatch({ type: 'GET_LIST_DIR_INFO', remotePath: this.currentDirPath + filename + '/' })
-            .then(result => { })
-            .catch(alert)
+        if (/\/$/.test(uri)) {
+          this.$store.dispatch({ type: 'GET_LIST_DIR_INFO', remotePath: uri })
+        } else {
+          windowOpen(this.cname + uri, this.cname + uri, {
+            modal: true,
+            closable: false
+          })
         }
       },
       // 删除文件
@@ -192,9 +184,8 @@
       },
       // 修改路径
       renameFile() {
-        const { selected } = this
-        if(selected && selected.length !== 1) return
-        this.$store.commit('RENAME_FILE_SET_OLD_PATH', selected[0])
+        if(!this.uniqueSelectedUri) return
+        this.$store.commit('RENAME_FILE_SET_OLD_PATH', this.uniqueSelectedUri)
         this.$store.commit('OPEN_RENAME_FILE_MODAL')
       }
     },
