@@ -1,13 +1,39 @@
-import { ipcRenderer, remote, shell, BrowserWindow } from 'electron'
+import { ipcRenderer, remote, shell } from 'electron'
 const {dialog, Menu, MenuItem} = remote
+
+
+// 设置菜单
+Menu.setApplicationMenu(Menu.buildFromTemplate([
+  {
+    label: '帮助',
+    role: 'help',
+    submenu: [
+      {
+        label: '切换开发人员工具',
+        role: 'toggledevtools'
+      },
+      {
+        label: '报告一个问题',
+        click() { shell.openExternal('https://github.com/gynantimdt/merry/issues') }
+      },
+      {
+        type: 'separator'
+      },
+      {
+        label: '关于',
+        click() { }
+      },
+    ]
+  }
+]))
 
 
 // 打开外部链接
 export const openExternal = shell.openExternal
 
 export const windowOpen = (url, frameName, features) => {
-  let child = new BrowserWindow({ parent: remote.getCurrentWindow(), modal: true, show: false })
-  child.loadURL('https://github.com')
+  let child = new remote.BrowserWindow({ parent: remote.getCurrentWindow(), modal: true, show: false })
+  child.loadURL(url)
   child.once('ready-to-show', () => {
     child.show()
   })

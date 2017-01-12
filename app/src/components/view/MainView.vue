@@ -152,9 +152,8 @@
         if (/\/$/.test(uri)) {
           this.$store.dispatch({ type: 'GET_LIST_DIR_INFO', remotePath: uri })
         } else {
-          windowOpen(this.cname + uri, this.cname + uri, {
-            modal: true,
-            closable: false
+          window.open(this.cname + uri, this.cname + uri, {
+            frame: false,
           })
         }
       },
