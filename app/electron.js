@@ -2,10 +2,10 @@
 
 const electron = require('electron')
 const path = require('path')
-const localshortcut = require('electron-localshortcut')
 
 const BrowserWindow = electron.BrowserWindow
 const app = electron.app
+const shell = electron.shell
 
 let mainWindow
 let config = {}
@@ -41,16 +41,8 @@ function createWindow() {
       .catch((err) => console.log('An error occurred: ', err))
   }
 
-  mainWindow.on('close', () => {
-    localshortcut.unregister(mainWindow, 'Ctrl+A')
-  })
-
   mainWindow.on('closed', () => {
     mainWindow = null
-  })
-
-  localshortcut.register(mainWindow, 'Ctrl+A', () => {
-    mainWindow.webContents.send('SHORTCUT_SELECT_ALL')
   })
 
   console.log('mainWindow opened')
