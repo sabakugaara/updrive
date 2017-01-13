@@ -18,9 +18,10 @@ client.on('close', error => {
 const connect = () => {
   return new Promise((resolve, reject) => {
     const user = path(['state', 'user'], Store)
+    const host = path(['getter', 'restApiHost'], Store)
     if (!user) reject()
     client.connect({
-      host: 'v0.ftp.upyun.com',
+      host: host,
       user: `${user.operatorName}/${user.bucketName}`,
       password: user.password
     })

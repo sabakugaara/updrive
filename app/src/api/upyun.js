@@ -1,18 +1,14 @@
-import { range, path, split, map, zipObj, compose, objOf, ifElse, isEmpty, assoc, replace, converge, always, prop, concat, identity, __, equals } from 'ramda';
+import { tail, head, pipe, uniq, range, path, split, map, zipObj, compose, objOf, ifElse, isEmpty, assoc, replace, converge, always, prop, concat, identity, __, equals } from 'ramda';
 import { createReadStream, createWriteStream, readdirSync, statSync, existsSync, mkdirSync } from 'fs'
 import Request from 'request'
 import Path from 'path'
 import Url from 'url'
 
 import { getAuthorizationHeader, md5sum, getUri, standardUri, sleep, getFilenameFromUrl, isDir } from './tool.js'
+import Store from '../vuex/store' // 不能解构, 因为这时 store 还没完成初始化
 
-import store from '../vuex/store' // 不能解构, 因为这时 store 还没完成初始化
-
-const DEFAULT_HOSTNAME = 'v0.api.upyun.com'
-
-
-export const getRequestOpts = ({ user = path(['state', 'user'], store), toUrl = '', method = 'GET', headers = {} } = {}) => {
-  const url = Url.resolve(`http://${DEFAULT_HOSTNAME}/${user.bucketName}/`, encodeURIComponent(toUrl))
+export const getRequestOpts = ({ user = path(['state', 'user'], Store), toUrl = '', method = 'GET', headers = {} } = {}) => {
+  const url = Url.resolve(`http://${Store.getters.restApiHost}/${user.bucketName}/`, encodeURIComponent(toUrl))
   const authHeader = getAuthorizationHeader({ ...user, method: method, url })
   return {
     method,
@@ -163,13 +159,18 @@ export const traverseDir = async (remotePaths = '', opts = {}) => {
   const parseDir = async (paths, fromPath = '') => {
     for (const path of paths) {
       try {
-        files.push({
-          absolutePath: path,
-          relativePath: fromPath,
-        })
         if (isDir(path)) {
+          files.push({
+            absolutePath: path,
+            relativePath: fromPath + Path.basename(path) + '/',
+          })
           const dirData = await getListDirInfo(path)
           if (dirData && dirData.data && dirData.data.length) await parseDir(dirData.data.map(fileObj => fileObj.uri), fromPath + Path.basename(path) + '/')
+        } else {
+          files.push({
+            absolutePath: path,
+            relativePath: fromPath + Path.basename(path),
+          })
         }
       } catch (err) {
         console.error(err)
@@ -178,17 +179,20 @@ export const traverseDir = async (remotePaths = '', opts = {}) => {
   }
 
   await parseDir(remotePaths)
-  files = files.reverse()
 
-  if(opts.type === 'file') {
+  if (opts.reverse === false) {
+    files = files.reverse()
+  }
+
+  if (opts.type === 'file') {
     files = files.filter(f => !isDir(f.absolutePath))
   }
 
-  if(opts.type === 'folder') {
+  if (opts.type === 'folder') {
     files = files.filter(f => isDir(f.absolutePath))
   }
 
-  if(opts.relative !== true) {
+  if (opts.relative !== true) {
     files = files.map(o => o.absolutePath)
   }
 
@@ -234,47 +238,58 @@ export const deleteFiles = async remotePaths => {
   return deleteError
 }
 
-// 下载单个文件
-export const downloadFile = async (dirPath, fileName, singleDownloadPath) => {
-  // if()
-  request
-    .get(encodeURI(singleDownloadPath))
-    .on('data', (chunk) => {
-      console.info(chunk.length, +new Date());
-    })
-    .pipe(createWriteStream(localPath))
-    .on('finish', () => {
-      console.info('下载完成')
-    })
-}
 
 // 递归获取不重复名字
-export const getLocalName = (fileName = '') => {
-  if(!existsSync(fileName)) return fileName
+export const getLocalName = (fileName = '', init = true) => {
+  if (!existsSync(fileName)) return fileName
   const match = /\((\d+)\)$/
-  if(match.test(fileName)) {
-    return getLocalName(fileName.replace(match, (match, p1) => `(${parseInt(p1) + 1})`))
+  if (init && match.test(fileName)) {
+    return getLocalName(fileName.replace(match, (match, p1) => `(${parseInt(p1) + 1})`), false)
   } else {
-    return getLocalName(fileName + '(1)')
+    return getLocalName(fileName + '(1)', false)
   }
+}
+
+// 下载单个文件
+export const downloadFile = (localPath, downloadPath) => {
+  if (!downloadPath && !existsSync(localPath)) return Promise.resolve(mkdirSync(localPath))
+  // const writeStream = createWriteStream(localPath)
+  return new Promise((resolve, reject) => {
+    Request(downloadPath)
+      .on('data', (chunk) => {
+        console.info(chunk.length, +new Date());
+      })
+      .on('error', err => {
+        console.error(err);
+      })
+      .pipe(createWriteStream(localPath)
+        .on('close', () => {
+          resolve()
+          console.info('下载完成')
+        })
+      )
+  })
 }
 
 // 下载文件
 // @TODO 控制并发数量
 export const downloadFiles = async (destPath, downloadPath) => {
-  console.log(destPath)
-  let dir = await traverseDir(downloadPath, {relative: true})
-  dir = dir.map(path => {
-    // const head = Path.join(split('/', path.absolutePath)[0])
-
-    // const localPath =
+  const dir = await traverseDir(downloadPath, { relative: true })
+  const dirAll = dir.map(path => {
     return {
-      ...path
+      downloadPath: isDir(path.absolutePath) ? '' : (Store.getters.cname + encodeURIComponent(path.absolutePath)),
+      localPath: Path.join(
+        getLocalName(
+          Path.join(
+            destPath,
+            pipe(prop('relativePath'), split('/'), head)(path),
+          )
+        ),
+        ...pipe(prop('relativePath'), split('/'), tail)(path)
+      )
     }
   })
-  // for(const singleDownloadPath of downloadPath) {
-  //   const localPath = getLocalName(Path.join(destPath, getFilenameFromUrl(singleDownloadPath)))
-  //   console.log(localPath)
-  // }
-  // downloadFile(destPath, downloadPath[0])
+  for (const pathObj of dirAll) {
+    await downloadFile(pathObj.localPath, pathObj.downloadPath)
+  }
 }

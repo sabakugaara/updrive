@@ -1,7 +1,7 @@
 import { join, append, compose, unless, isEmpty } from 'ramda'
 import * as Types from './mutation-types'
 import * as Upyun from '../api/upyun.js'
-import * as UpyunFtp from '../api/ftpClient.js'
+import * as UpyunFtp from '../api/upyunFtp.js'
 
 export default {
   // 登录
