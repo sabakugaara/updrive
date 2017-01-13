@@ -1,4 +1,5 @@
 import crypto from 'crypto';
+import { basename } from 'path'
 import { parse } from 'url';
 import { replace, compose } from 'ramda';
 
@@ -36,8 +37,16 @@ export const getAuthorizationHeader = ({method = 'GET', url = '', passwordMd5, o
   }
 }
 
-export const sleep = (ms = 0) => new Promise(r => setTimeout(r, ms));
+export const sleep = (ms = 0) => {
+  return new Promise(r => setTimeout(r, ms))
+}
 
+export const isDir = (path ='') => {
+  return /\/$/.test(path)
+}
 
-
+export const getFilenameFromUrl = (url = '') => {
+  console.log(parse(url).pathname)
+  return basename(decodeURIComponent(parse(url).pathname))
+}
 

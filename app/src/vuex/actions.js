@@ -55,5 +55,9 @@ export default {
   [types.RENAME_FILE]({ state, commit, dispatch}, { oldPath, newPath, isFolder } = {}) {
     return isFolder ? UpyunFtp.renameFolder(oldPath, newPath) : UpyunFtp.renameFile(oldPath, newPath)
   },
+  // 下载文件
+  [types.DOWNLOAD_FILES]({ state, commit, dispatch}, { destPath, downloadPath } = {}) {
+    return Upyun.downloadFiles(destPath, downloadPath)
+  },
 }
 

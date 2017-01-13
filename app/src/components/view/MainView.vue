@@ -1,23 +1,23 @@
 <template>
   <div class="list-view">
     <div class="list-operation">
-      <div class="list-operation-item" :class="listOperationItemClass">
+      <div class="list-operation-item" @click="getLink" :class="listOperationSingelItemClass">
         <svg class="svg-icon">
           <use xlink:href="#icon-link"></use>
         </svg>
         获取链接
       </div>
-      <div class="list-operation-item" @click="downloadFile" :class="listOperationItemClass">
+      <div class="list-operation-item" @click="downloadFile" :class="listOperationSingelItemClass">
         <svg class="svg-icon">
           <use xlink:href="#icon-icondownload"></use>
         </svg>
         下载
       </div>
-      <div class="list-operation-item" :class="listOperationItemClass">
+      <div class="list-operation-item" @click="dblclickItem" :class="listOperationSingelItemClass">
         <svg class="svg-icon">
           <use xlink:href="#icon-browse"></use>
         </svg>
-        预览
+        查看
       </div>
       <div class="list-operation-item" @click="deleteFile" :class="listOperationItemClass">
         <svg class="svg-icon">
@@ -25,7 +25,7 @@
         </svg>
         删除
       </div>
-      <div class="list-operation-item" @click="renameFile" :class="listOperationItemClass">
+      <div class="list-operation-item" @click="renameFile" :class="listOperationSingelItemClass">
         <svg class="svg-icon">
           <use xlink:href="#icon-edit"></use>
         </svg>
@@ -78,13 +78,18 @@
   import { mapState, mapGetters, dispatch, commit } from 'vuex'
   import { basename } from 'path'
   import { timestamp, digiUnit } from '../../filters'
-  import { downloadFileDialog, messgaeDialog, createContextmenu, showContextmenu, openExternal, windowOpen } from '../../api/electron.js'
+  import { downloadFileDialog, messgaeDialog, createContextmenu, showContextmenu, openExternal, windowOpen, writeText } from '../../api/electron.js'
 
   export default {
     computed: {
       listOperationItemClass() {
         return {
           disabled: !this.selected.length
+        }
+      },
+      listOperationSingelItemClass() {
+        return {
+          disabled: !this.uniqueSelectedUri
         }
       },
       uniqueSelectedUri() {
@@ -124,37 +129,43 @@
       },
       // 右键点击
       contextmenu({uri}) {
-        this.$store.commit({ type: 'SET_SELECT_LIST', selected: [uri] })
+        if(!this.selected.includes(uri)) this.$store.commit({ type: 'SET_SELECT_LIST', selected: [uri] })
         this.$nextTick(this.showContextMenu)
       },
       // 显示菜单
       showContextMenu() {
         showContextmenu({
           appendItems: [
-            { label: '打开', click: () => this.dblclickItem(this.uniqueSelectedUri)},
-            { type: 'separator' },
-            { label: '修改路径...', click: () => this.renameFile() },
-            { label: '获取链接', click: () => console.log('item 1 clicked') },
-            { label: '查看详细信息', click: () => console.log('item 1 clicked') },
-            { label: '下载', click: () => console.log('item 1 clicked') },
-            { type: 'separator' },
-            { label: '删除', click: () => this.deleteFile() },
+            { hide: !this.uniqueSelectedUri, label: '打开', click: () => this.dblclickItem(this.uniqueSelectedUri)},
+            { hide: !this.uniqueSelectedUri, label: '在浏览器中打开', click: () => openExternal(this.getUrl())},
+            { hide: !this.uniqueSelectedUri, type: 'separator' },
+            { hide: !this.uniqueSelectedUri, label: '修改路径...', click: () => this.renameFile() },
+            { hide: !this.uniqueSelectedUri, label: '获取链接', click: () => this.getLink() },
+            { hide: !this.uniqueSelectedUri, label: '查看详细信息', click: () => console.log('item 1 clicked') },
+            { hide: !this.selected.length, label: '下载', click: () => this.downloadFile() },
+            { hide: !this.uniqueSelectedUri, type: 'separator' },
+            { hide: !this.selected.length, label: '删除', click: () => this.deleteFile() },
           ]
         })
+      },
+      getUrl(uri = this.uniqueSelectedUri) {
+        return this.cname + uri
+      },
+      // 链接
+      getLink(uri) {
+        writeText(this.getUrl())
       },
       // 全选
       selectAll($event) {
         console.log($event)
       },
       // 双击
-      dblclickItem(uri = '') {
+      dblclickItem(uri) {
         // 如果是文件夹,则打开目录
         if (/\/$/.test(uri)) {
           this.$store.dispatch({ type: 'GET_LIST_DIR_INFO', remotePath: uri })
         } else {
-          window.open(this.cname + uri, this.cname + uri, {
-            frame: false,
-          })
+          window.open(this.getUrl(), this.getUrl(), { frame: false })
         }
       },
       // 删除文件
@@ -175,10 +186,12 @@
       },
       // 下载文件
       downloadFile() {
+        if(!this.selected.length) return
         return downloadFileDialog()
           .then(path => {
-            if (!path) return
             console.log(path)
+            if (!path) return
+            this.$store.dispatch({ type: 'DOWNLOAD_FILES', downloadPath: this.selected, destPath: path })
           })
       },
       // 修改路径

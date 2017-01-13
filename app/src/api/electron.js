@@ -1,9 +1,18 @@
-import { ipcRenderer, remote, shell } from 'electron'
+import { ipcRenderer, remote, shell, clipboard } from 'electron'
 const {dialog, Menu, MenuItem} = remote
 
 
 // 设置菜单
 Menu.setApplicationMenu(Menu.buildFromTemplate([
+  {
+    label: '查看',
+    submenu: [
+      {
+        label: '刷新',
+        role: 'reload'
+      },
+    ]
+  },
   {
     label: '帮助',
     role: 'help',
@@ -27,6 +36,7 @@ Menu.setApplicationMenu(Menu.buildFromTemplate([
   }
 ]))
 
+export const writeText = clipboard.writeText
 
 // 打开外部链接
 export const openExternal = shell.openExternal
@@ -42,7 +52,9 @@ export const windowOpen = (url, frameName, features) => {
 // 创建右键菜单
 export const createContextmenu = ({ appendItems } = {}) => {
   const menu = new Menu()
-  for (const menuItem of appendItems) menu.append(new MenuItem(menuItem))
+  for (const menuItem of appendItems) {
+    if(!menuItem.hide) menu.append(new MenuItem(menuItem))
+  }
   return menu
 }
 
