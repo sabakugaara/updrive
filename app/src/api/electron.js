@@ -1,5 +1,6 @@
 import { ipcRenderer, remote, shell, clipboard } from 'electron'
-const {dialog, Menu, MenuItem} = remote
+
+const { dialog, Menu, MenuItem } = remote
 
 
 // 设置菜单

@@ -1,5 +1,5 @@
 import { filter, identity, split, compose, append, pluck } from 'ramda'
-import * as types from '../mutation-types'
+import * as Types from '../mutation-types'
 
 const state = {
   dirInfo: {
@@ -10,17 +10,17 @@ const state = {
 }
 
 const mutations = {
-  [types.SET_CURRENT_LIST](state, { data }) {
+  [Types.SET_CURRENT_LIST](state, { data }) {
     state.dirInfo = data
     state.selected = []
   },
-  [types.SHORTCUT_SELECT_ALL](state, data) {
+  [Types.SHORTCUT_SELECT_ALL](state, data) {
     state.selected = pluck('uri', state.dirInfo.data)
   },
-  [types.SET_SELECT_LIST](state, {selected}) {
+  [Types.SET_SELECT_LIST](state, {selected}) {
     state.selected = selected
   },
-  [types.CLEAR_LIST](state) {
+  [Types.CLEAR_LIST](state) {
     state = {
       dirInfo: {
         data: [],

@@ -1,15 +1,18 @@
 import { range, path, split, map, zipObj, compose, objOf, ifElse, isEmpty, assoc, replace, converge, always, prop, concat, identity, __, equals } from 'ramda';
-import request from 'request'
 import { createReadStream, createWriteStream, readdirSync, statSync, existsSync, mkdirSync } from 'fs'
-import { basename, join } from 'path'
-import urlParse from 'url'
+import Request from 'request'
+import Path from 'path'
+import Url from 'url'
+
 import { getAuthorizationHeader, md5sum, getUri, standardUri, sleep, getFilenameFromUrl, isDir } from './tool.js'
+
 import store from '../vuex/store' // 不能解构, 因为这时 store 还没完成初始化
+
 const DEFAULT_HOSTNAME = 'v0.api.upyun.com'
 
 
 export const getRequestOpts = ({ user = path(['state', 'user'], store), toUrl = '', method = 'GET', headers = {} } = {}) => {
-  const url = urlParse.resolve(`http://${DEFAULT_HOSTNAME}/${user.bucketName}/`, encodeURIComponent(toUrl))
+  const url = Url.resolve(`http://${DEFAULT_HOSTNAME}/${user.bucketName}/`, encodeURIComponent(toUrl))
   const authHeader = getAuthorizationHeader({ ...user, method: method, url })
   return {
     method,
@@ -24,7 +27,7 @@ export const getRequestOpts = ({ user = path(['state', 'user'], store), toUrl = 
 // 授权认证
 export const checkAuth = user => {
   return new Promise((resolve, reject) => {
-    request(
+    Request(
       getRequestOpts({ method: 'GET', toUrl: '?usage', user }),
       (error, response, body) => {
         if (error) reject(error)
@@ -40,7 +43,7 @@ export const checkAuth = user => {
 // 获取目录列表信息
 export const getListDirInfo = (remotePath = '') => {
   return new Promise((resolve, reject) => {
-    request(
+    Request(
       getRequestOpts({ method: 'GET', toUrl: remotePath }),
       (error, response, body) => {
         if (error) reject(error)
@@ -83,8 +86,8 @@ export const upload = (remotePath = '', localFilePath = '', relativePath = '') =
       .on('data', function (chunk) {
         console.info(chunk.length, +new Date());
       })
-      .pipe(request(
-        getRequestOpts({ method: 'PUT', toUrl: remotePath + relativePath + basename(localFilePath) }),
+      .pipe(Request(
+        getRequestOpts({ method: 'PUT', toUrl: remotePath + relativePath + Path.basename(localFilePath) }),
         (error, response, body) => {
           if (error) reject(error)
           if (response.statusCode !== 200) reject(error)
@@ -98,7 +101,7 @@ export const upload = (remotePath = '', localFilePath = '', relativePath = '') =
 // 创建目录
 export const createFolder = (remotePath = '', folderName = '') => {
   return new Promise((resolve, reject) => {
-    request(
+    Request(
       getRequestOpts({ method: 'POST', toUrl: remotePath + folderName + '/', headers: { folder: true } }),
       (error, response, body) => {
         if (error) reject(error)
@@ -119,13 +122,6 @@ export const uploadFiles = (remotePath = '', localFilePaths = []) => {
 // @TODO 控制并发数量
 export const uploadFloders = (remotePath, localFolderPaths = []) => {
   const result = []
-  // 递归遍历目录
-  // const parseFolder = (nodes, fromPath) => {
-  //   for (const node of nodes) statSync(node).isDirectory() ?
-  //     parseFolder(readdirSync(node).map(name => join(node, name)), fromPath + basename(node) + '/') :
-  //     result.push({ localFilePath: node, relativePath: fromPath })
-  // }
-  // parseFolder(localFolderPaths, '')
   // 广度优先遍历
   let list = localFolderPaths.slice().map(path => ({ localFilePath: path, relativePath: '' }))
   while (list.length) {
@@ -133,8 +129,8 @@ export const uploadFloders = (remotePath, localFolderPaths = []) => {
     const {localFilePath, relativePath} = node
     if (statSync(localFilePath).isDirectory() && readdirSync(localFilePath).length) {
       list = list.concat(readdirSync(localFilePath).map(name => ({
-        localFilePath: join(localFilePath, name),
-        relativePath: relativePath + basename(localFilePath) + '/',
+        localFilePath: Path.join(localFilePath, name),
+        relativePath: relativePath + Path.basename(localFilePath) + '/',
       })))
     } else {
       result.push(node)
@@ -142,13 +138,13 @@ export const uploadFloders = (remotePath, localFolderPaths = []) => {
   }
   for (const pathObj of result) statSync(pathObj.localFilePath).isFile() ?
     upload(remotePath, pathObj.localFilePath, pathObj.relativePath) :
-    createFolder(remotePath, pathObj.relativePath + basename(pathObj.localFilePath))
+    createFolder(remotePath, pathObj.relativePath + Path.basename(pathObj.localFilePath))
 }
 
 // 删除文件
 export const deleteFile = remotePath => {
   return new Promise((resolve, reject) => {
-    request(
+    Request(
       getRequestOpts({ method: 'DELETE', toUrl: remotePath }),
       (error, response, body) => {
         if (error) reject(error)
@@ -173,7 +169,7 @@ export const traverseDir = async (remotePaths = '', opts = {}) => {
         })
         if (isDir(path)) {
           const dirData = await getListDirInfo(path)
-          if (dirData && dirData.data && dirData.data.length) await parseDir(dirData.data.map(fileObj => fileObj.uri), fromPath + basename(path) + '/')
+          if (dirData && dirData.data && dirData.data.length) await parseDir(dirData.data.map(fileObj => fileObj.uri), fromPath + Path.basename(path) + '/')
         }
       } catch (err) {
         console.error(err)
@@ -267,9 +263,17 @@ export const getLocalName = (fileName = '') => {
 // @TODO 控制并发数量
 export const downloadFiles = async (destPath, downloadPath) => {
   console.log(destPath)
-  console.log(await traverseDir(downloadPath, {relative: true}))
+  let dir = await traverseDir(downloadPath, {relative: true})
+  dir = dir.map(path => {
+    // const head = Path.join(split('/', path.absolutePath)[0])
+
+    // const localPath =
+    return {
+      ...path
+    }
+  })
   // for(const singleDownloadPath of downloadPath) {
-  //   const localPath = getLocalName(join(destPath, getFilenameFromUrl(singleDownloadPath)))
+  //   const localPath = getLocalName(Path.join(destPath, getFilenameFromUrl(singleDownloadPath)))
   //   console.log(localPath)
   // }
   // downloadFile(destPath, downloadPath[0])

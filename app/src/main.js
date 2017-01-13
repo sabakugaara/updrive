@@ -4,7 +4,7 @@ import Resource from 'vue-resource'
 import Router from 'vue-router'
 
 import App from './App'
-import routes from './routes'
+import Routes from './routes'
 
 Vue.use(Electron)
 Vue.use(Resource)
@@ -13,7 +13,7 @@ Vue.use(Router)
 Vue.config.debug = true
 const router = new Router({
   scrollBehavior: () => ({ y: 0 }),
-  routes
+  routes: Routes,
 })
 
 /* eslint-disable no-new */

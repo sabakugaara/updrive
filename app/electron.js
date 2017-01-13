@@ -1,11 +1,11 @@
 'use strict'
 
-const electron = require('electron')
-const path = require('path')
+const Electron = require('electron')
+const Path = require('path')
 
-const BrowserWindow = electron.BrowserWindow
-const app = electron.app
-const shell = electron.shell
+const BrowserWindow = Electron.BrowserWindow
+const app = Electron.app
+const shell = Electron.shell
 
 let mainWindow
 let config = {}
@@ -32,7 +32,7 @@ function createWindow() {
   mainWindow.loadURL(config.url)
 
   if (process.env.NODE_ENV === 'development') {
-    BrowserWindow.addDevToolsExtension(path.join(__dirname, '../node_modules/devtron'))
+    BrowserWindow.addDevToolsExtension(Path.join(__dirname, '../node_modules/devtron'))
 
     let installExtension = require('electron-devtools-installer')
 

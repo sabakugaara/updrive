@@ -1,11 +1,11 @@
-import crypto from 'crypto';
-import { basename } from 'path'
-import { parse } from 'url';
 import { replace, compose } from 'ramda';
+import Crypto from 'crypto';
+import Path from 'path'
+import Url from 'url';
 
-export const md5sum = data => crypto.createHash('md5').update(data, 'utf8').digest('hex')
+export const md5sum = data => Crypto.createHash('md5').update(data, 'utf8').digest('hex')
 
-export const hmacSha1 = (secret, data) => crypto.createHmac('sha1', secret).update(data, 'utf8').digest().toString('base64')
+export const hmacSha1 = (secret, data) => Crypto.createHmac('sha1', secret).update(data, 'utf8').digest().toString('base64')
 
 export const base64 = (str = '') => (new Buffer(str).toString('base64'))
 
@@ -30,7 +30,7 @@ export const getAuthorizationHeader = ({method = 'GET', url = '', passwordMd5, o
       operatorName,
       passwordMd5,
       date,
-      uri: parse(url).pathname,
+      uri: Url.parse(url).pathname,
       method: method.toUpperCase(),
     }),
     Date: date,
@@ -46,7 +46,6 @@ export const isDir = (path ='') => {
 }
 
 export const getFilenameFromUrl = (url = '') => {
-  console.log(parse(url).pathname)
-  return basename(decodeURIComponent(parse(url).pathname))
+  return Path.basename(decodeURIComponent(Url.parse(url).pathname))
 }
 

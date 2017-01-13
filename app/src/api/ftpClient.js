@@ -1,8 +1,8 @@
 import { path, split, map, zipObj, compose, objOf, ifElse, isEmpty, assoc, replace, converge, always, prop, concat, identity, __, equals } from 'ramda'
-import moment from 'moment'
+import Moment from 'moment'
 import Ftp from 'ftp'
 
-import store from '../vuex/store'
+import Store from '../vuex/store'
 import { traverseDir } from './upyun'
 
 const client = new Ftp()
@@ -17,7 +17,7 @@ client.on('close', error => {
 
 const connect = () => {
   return new Promise((resolve, reject) => {
-    const user = path(['state', 'user'], store)
+    const user = path(['state', 'user'], Store)
     if (!user) reject()
     client.connect({
       host: 'v0.ftp.upyun.com',
@@ -41,7 +41,7 @@ export const getListDirInfoPromise = remotePath => {
         return {
           filename,
           folderType: file.type === 'd' ? 'F' : 'N',
-          lastModified: moment(file.date).unix(),
+          lastModified: Moment(file.date).unix(),
           size: file.size,
           uri: remotePath + filename + (file.type === 'd' ? '/' : '')
         }

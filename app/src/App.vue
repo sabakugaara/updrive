@@ -3,16 +3,14 @@
 </template>
 
 <script>
-  import store from 'src/vuex/store'
   import { commit } from 'vuex'
-  import * as filters from './filters'
-  import { listenSelectAll } from './api/electron.js'
 
-  // 图标
+  import Store from 'src/vuex/store'
+  import { listenSelectAll } from './api/electron.js'
   import './assets/iconfont.js'
 
   export default {
-    store,
+    store: Store,
     created() {
       listenSelectAll((event, message) => this.$store.commit('SHORTCUT_SELECT_ALL'))
     }

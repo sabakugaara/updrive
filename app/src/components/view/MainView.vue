@@ -76,7 +76,8 @@
     range, pick, merge, converge, length, not, __, reduce, identity, findIndex, last, pipe, propEq, slice, uri, pluck, concat, remove, append
   } from 'ramda'
   import { mapState, mapGetters, dispatch, commit } from 'vuex'
-  import { basename } from 'path'
+  import Path from 'path'
+
   import { timestamp, digiUnit } from '../../filters'
   import { downloadFileDialog, messgaeDialog, createContextmenu, showContextmenu, openExternal, windowOpen, writeText } from '../../api/electron.js'
 
@@ -175,7 +176,7 @@
           title: '提示',
           buttons: ['删除', '取消'],
           defaultId: 1,
-          message: `确定要删除「${basename(selected[0])}」${selected.length > 1 ? `等${selected.length}个文件` : ''}吗?`,
+          message: `确定要删除「${Path.basename(selected[0])}」${selected.length > 1 ? `等${selected.length}个文件` : ''}吗?`,
           detail: '操作后文件无法恢复',
         })
           .then(index => {

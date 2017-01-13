@@ -1,14 +1,15 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
-import actions from './actions'
-import * as getters from './getters'
-import modules from './modules'
+
+import Actions from './actions'
+import * as Getters from './getters'
+import Modules from './modules'
 
 Vue.use(Vuex)
 
 export default new Vuex.Store({
-  actions,
-  getters,
-  modules,
-  strict: true
+  actions: Actions,
+  getters: Getters,
+  modules: Modules,
+  strict: true,
 })

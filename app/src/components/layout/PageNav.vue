@@ -44,13 +44,10 @@
 
 
 <script>
-  import { remote } from 'electron'
-  import { mapState } from 'vuex'
   import { path, take, split, identity, filter, compose, concat, join } from 'ramda'
+  import { mapState } from 'vuex'
 
   import { uploadFileDialog, uploadDirectoryDialog } from '../../api/electron.js'
-
-  const dialog = remote.dialog
 
   export default {
     computed: {
