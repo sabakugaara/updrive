@@ -130,12 +130,12 @@
         if (!ctrlKey && shiftKey && (key === 'j' || key === 'ArrowDown')) {
           const currentLastIndex = indexOf(last(this.selected), uriData)
           const targetUri = (currentLastIndex + 1 > uriData.length - 1) ? last(uriData) : nth(currentLastIndex + 1, uriData)
-          selectUri(this.selected.concat([targetUri]))
+          selectUri(append(targetUri, this.selected))
         }
         if (!ctrlKey && shiftKey && (key === 'k' || key === 'ArrowUp')) {
           const currentLastIndex = indexOf(last(this.selected), uriData)
           const targetUri = (currentLastIndex - 1 < 0) ? nth(0, uriData) : nth(currentLastIndex - 1, uriData)
-          selectUri(this.selected.concat([targetUri]))
+          selectUri(append(targetUri, this.selected))
         }
 
       },
