@@ -35,10 +35,6 @@ export default {
   [Types.UPLOAD_FILES]({ state, commit, dispatch }, { remotePath, localFilePaths }) {
     return Upyun.uploadFiles(remotePath, localFilePaths)
   },
-  // 上传文件夹
-  [Types.UPLOAD_FLODER]({ state, commit, dispatch }, { remotePath, localFolderPaths }) {
-    return Upyun.uploadFloders(remotePath, localFolderPaths)
-  },
   // 创建目录
   [Types.CREATE_FOLDER]({ state, commit, dispatch }, { remotePath, folderName }) {
     return Upyun.createFolder(remotePath, folderName)

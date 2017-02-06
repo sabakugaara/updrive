@@ -45,6 +45,17 @@
   overflow-x: hidden;
 }
 
+.empty-list {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  .empty-list-content {
+    text-align: center;
+    flex: 1;
+    font-size: 22px;
+  }
+}
+
 .file-list {
   cursor: default;
   -webkit-user-select: none;

@@ -1,5 +1,5 @@
 <template>
-  <div class="list-view" tabindex="-1" @keydown="keydown">
+  <div class="list-view" tabindex="-1" @keydown="keydown" @dragstart="dragstart" @dragleave="dragleave" @dragend="dragend" @dragover="dragover" @drop="drop">
     <div class="list-operation">
       <div class="list-operation-item" @click="getLink" :class="listOperationSingelItemClass">
         <svg class="svg-icon">
@@ -33,7 +33,7 @@
       </div>
     </div>
     <div class="list">
-      <div class="file-list">
+      <div class="file-list" v-if="list.dirInfo.data.length">
         <div class="file-list-column">
           <div class="column-file-name table-column"></div>
           <div class="column-last-modified table-column"></div>
@@ -47,20 +47,31 @@
           <div class="file-info-item column-file-size">大小</div>
         </div>
         <div class="file-list-body">
-          <div class="file-list-item" v-for="(file, index) in list.dirInfo.data" :class="{
-              'item-selected': (listItemState[file.uri] && listItemState[file.uri].selected),
-            }" :tabindex="getListTabIndex(file.uri)" @click.stop="selectItem(file, $event, index)" @dblclick.stop="dblclickItem(file.uri)"
-            @contextmenu.prevent="contextmenu(file)">
+          <div
+            class="file-list-item"
+            v-for="(file, index) in list.dirInfo.data"
+            :class="{ 'item-selected': (listItemState[file.uri] && listItemState[file.uri].selected) }"
+            :tabindex="getListTabIndex(file.uri)"
+            @click.stop="selectItem(file, $event, index)"
+            @dblclick.stop="dblclickItem(file.uri)"
+            @contextmenu.prevent="contextmenu(file)"
+          >
             <div class="file-name file-info-item">
               <i class="file-icon" :class="{'icon-folder': file.folderType === 'F'}"></i>{{file.filename}}
             </div>
             <div class="last-modified file-info-item">{{file.lastModified | timestamp}}</div>
             <div class="file-type file-info-item">文件</div>
             <div class="file-size file-info-item">{{(file.folderType === 'F' ? '-' : file.size) | digiUnit}}</div>
+          </div>
+        </div>
+      </div>
+      <div v-if="!list.dirInfo.data.length" class="empty-list">
+        <div class="empty-list-content">
+          <p>该文件夹为空</p>
+          <p>拖动上传文件</p>
         </div>
       </div>
     </div>
-  </div>
   </div>
 </template>
 
@@ -106,6 +117,27 @@
       ...mapGetters(['cname']),
     },
     methods: {
+      dragstart($event) {
+        return false
+      },
+      dragleave($event) {
+        return false
+      },
+      dragend($event) {
+        return false
+      },
+      dragover() {
+        return false
+      },
+      drop($event) {
+        $event.preventDefault()
+        this.$store.dispatch({
+          type: 'UPLOAD_FILES',
+          remotePath: this.currentDirPath,
+          localFilePaths: pluck('path', $event.dataTransfer.files),
+        })
+        return false
+      },
       getListTabIndex(uri) {
         return this.selected.includes(uri) ? 0 : -1
       },
@@ -137,7 +169,9 @@
           const targetUri = (currentLastIndex - 1 < 0) ? nth(0, uriData) : nth(currentLastIndex - 1, uriData)
           selectUri(append(targetUri, this.selected))
         }
-
+        if (!ctrlKey && !shiftKey && key === 'Enter') {
+          this.dblclickItem(last(uriData))
+        }
       },
       selectItem({uri}, $event, index) {
         const data = this.list.dirInfo.data

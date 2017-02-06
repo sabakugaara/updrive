@@ -108,18 +108,12 @@ export const createFolder = (remotePath = '', folderName = '') => {
   })
 }
 
-// 上传多个文件
+// 上传文件
 // @TODO 控制并发数量
-export const uploadFiles = (remotePath = '', localFilePaths = []) => {
-  for (const localPath of localFilePaths) upload(remotePath, localPath)
-}
-
-// 上传多个文件夹
-// @TODO 控制并发数量
-export const uploadFloders = (remotePath, localFolderPaths = []) => {
+export const uploadFiles = (remotePath, localFilePaths = []) => {
   const result = []
   // 广度优先遍历
-  let list = localFolderPaths.slice().map(path => ({ localFilePath: path, relativePath: '' }))
+  let list = localFilePaths.slice().map(path => ({ localFilePath: path, relativePath: '' }))
   while (list.length) {
     const node = list.shift()
     const {localFilePath, relativePath} = node

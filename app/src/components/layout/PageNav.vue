@@ -88,9 +88,9 @@
             if (!folderPaths || !folderPaths.length) return
             return this.$store
               .dispatch({
-                type: 'UPLOAD_FLODER',
+                type: 'UPLOAD_FILES',
                 remotePath: this.currentDirPath,
-                localFolderPaths: folderPaths,
+                localFilePaths: folderPaths,
               })
           })
       }

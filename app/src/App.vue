@@ -12,9 +12,12 @@
   export default {
     store: Store,
     created() {
-      listenSelectAll((event, message) => this.$store.commit('SHORTCUT_SELECT_ALL'))
+      // 阻止默认的拖动事件
+      document.addEventListener('drop', event => event.preventDefault(), false)
+      document.addEventListener('dragover', event => event.preventDefault(), false)
     }
   }
+
 </script>
 
 
@@ -25,8 +28,11 @@
     font-weight: normal;
   }
 
-  $family-primary: Arial, "SourceHanSansCN-Light", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
-
+  $family-primary: Arial,
+  "SourceHanSansCN-Light",
+  "Hiragino Sans GB",
+  "Microsoft YaHei",
+  sans-serif;
   @import '../node_modules/bulma/bulma.sass';
   @import './styles/index.scss';
 </style>
