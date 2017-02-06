@@ -1,5 +1,5 @@
 <template>
-  <div class="list-view">
+  <div class="list-view" tabindex="-1" @keydown="keydown">
     <div class="list-operation">
       <div class="list-operation-item" @click="getLink" :class="listOperationSingelItemClass">
         <svg class="svg-icon">
@@ -47,32 +47,26 @@
           <div class="file-info-item column-file-size">大小</div>
         </div>
         <div class="file-list-body">
-          <div
-            class="file-list-item"
-            v-for="(file, index) in list.dirInfo.data"
-            :class="{
+          <div class="file-list-item" v-for="(file, index) in list.dirInfo.data" :class="{
               'item-selected': (listItemState[file.uri] && listItemState[file.uri].selected),
-            }"
-            @click.stop="selectItem(file, $event, index, list.dirInfo.data)"
-            @dblclick.stop="dblclickItem(file.uri)"
-            @contextmenu.prevent="contextmenu(file)"
-          >
+            }" :tabindex="getListTabIndex(file.uri)" @click.stop="selectItem(file, $event, index)" @dblclick.stop="dblclickItem(file.uri)"
+            @contextmenu.prevent="contextmenu(file)">
             <div class="file-name file-info-item">
               <i class="file-icon" :class="{'icon-folder': file.folderType === 'F'}"></i>{{file.filename}}
             </div>
             <div class="last-modified file-info-item">{{file.lastModified | timestamp}}</div>
             <div class="file-type file-info-item">文件</div>
             <div class="file-size file-info-item">{{(file.folderType === 'F' ? '-' : file.size) | digiUnit}}</div>
-          </div>
         </div>
       </div>
     </div>
+  </div>
   </div>
 </template>
 
 <script>
   import {
-    assocPath, map, compose, assoc, path, cond, and, prop, both, T, always, keys, filter, apply,
+    nth, indexOf, equals, assocPath, map, compose, assoc, path, cond, and, prop, both, T, always, keys, filter, apply,
     range, pick, merge, converge, length, not, __, reduce, identity, findIndex, last, pipe, propEq, slice, uri, pluck, concat, remove, append
   } from 'ramda'
   import { mapState, mapGetters, dispatch, commit } from 'vuex'
@@ -95,7 +89,7 @@
       },
       uniqueSelectedUri() {
         const { selected } = this
-        if(selected && selected.length !== 1) return ''
+        if (selected && selected.length !== 1) return ''
         return selected[0]
       },
       selected() {
@@ -112,7 +106,41 @@
       ...mapGetters(['cname']),
     },
     methods: {
-      selectItem({uri}, $event, index, data) {
+      getListTabIndex(uri) {
+        return this.selected.includes(uri) ? 0 : -1
+      },
+      keydown($event) {
+        const { ctrlKey, key, shiftKey } = $event
+        const uriData = pluck('uri', this.list.dirInfo.data)
+        const selectUri = selected => this.$store.commit({ type: 'SET_SELECT_LIST', selected: selected })
+        if (ctrlKey && !shiftKey && key === 'a') {
+          selectUri(uriData)
+        }
+        // 滚动
+        if (!ctrlKey && !shiftKey && (key === 'j' || key === 'ArrowDown')) {
+          const currentLastIndex = indexOf(last(this.selected), uriData)
+          const targetUri = (currentLastIndex + 1 > uriData.length - 1) ? last(uriData) : nth(currentLastIndex + 1, uriData)
+          selectUri([targetUri])
+        }
+        if (!ctrlKey && !shiftKey && (key === 'k' || key === 'ArrowUp')) {
+          const currentLastIndex = indexOf(last(this.selected), uriData)
+          const targetUri = (currentLastIndex - 1 < 0) ? nth(0, uriData) : nth(currentLastIndex - 1, uriData)
+          selectUri([targetUri])
+        }
+        if (!ctrlKey && shiftKey && (key === 'j' || key === 'ArrowDown')) {
+          const currentLastIndex = indexOf(last(this.selected), uriData)
+          const targetUri = (currentLastIndex + 1 > uriData.length - 1) ? last(uriData) : nth(currentLastIndex + 1, uriData)
+          selectUri(this.selected.concat([targetUri]))
+        }
+        if (!ctrlKey && shiftKey && (key === 'k' || key === 'ArrowUp')) {
+          const currentLastIndex = indexOf(last(this.selected), uriData)
+          const targetUri = (currentLastIndex - 1 < 0) ? nth(0, uriData) : nth(currentLastIndex - 1, uriData)
+          selectUri(this.selected.concat([targetUri]))
+        }
+
+      },
+      selectItem({uri}, $event, index) {
+        const data = this.list.dirInfo.data
         const getSelectedList = () => {
           const { selected } = this
           if ($event.shiftKey) {
@@ -130,15 +158,15 @@
       },
       // 右键点击
       contextmenu({uri}) {
-        if(!this.selected.includes(uri)) this.$store.commit({ type: 'SET_SELECT_LIST', selected: [uri] })
+        if (!this.selected.includes(uri)) this.$store.commit({ type: 'SET_SELECT_LIST', selected: [uri] })
         this.$nextTick(this.showContextMenu)
       },
       // 显示菜单
       showContextMenu() {
         showContextmenu({
           appendItems: [
-            { hide: !this.uniqueSelectedUri, label: '打开', click: () => this.dblclickItem(this.uniqueSelectedUri)},
-            { hide: !this.uniqueSelectedUri, label: '在浏览器中打开', click: () => openExternal(this.getUrl())},
+            { hide: !this.uniqueSelectedUri, label: '打开', click: () => this.dblclickItem(this.uniqueSelectedUri) },
+            { hide: !this.uniqueSelectedUri, label: '在浏览器中打开', click: () => openExternal(this.getUrl()) },
             { hide: !this.uniqueSelectedUri, type: 'separator' },
             { hide: !this.uniqueSelectedUri, label: '修改路径...', click: () => this.renameFile() },
             { hide: !this.uniqueSelectedUri, label: '获取链接', click: () => this.getLink() },
@@ -187,7 +215,7 @@
       },
       // 下载文件
       downloadFile() {
-        if(!this.selected.length) return
+        if (!this.selected.length) return
         return downloadFileDialog()
           .then(path => {
             console.log(path)
@@ -197,7 +225,7 @@
       },
       // 修改路径
       renameFile() {
-        if(!this.uniqueSelectedUri) return
+        if (!this.uniqueSelectedUri) return
         this.$store.commit('RENAME_FILE_SET_OLD_PATH', this.uniqueSelectedUri)
         this.$store.commit('OPEN_RENAME_FILE_MODAL')
       }
@@ -208,4 +236,5 @@
     },
     name: 'ListView'
   }
+
 </script>

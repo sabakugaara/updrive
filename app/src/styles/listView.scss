@@ -5,6 +5,7 @@
   border-left: 1px solid #ccc;
   flex-direction: column;
   background: #FFF;
+  outline: none;
 }
 
 .list-operation {
@@ -105,6 +106,7 @@
 
   .file-list-item {
     display: table-row;
+    outline: none;
     &:hover {
       background: #e5f3ff;
     }
