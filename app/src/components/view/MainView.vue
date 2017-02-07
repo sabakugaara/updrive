@@ -77,11 +77,12 @@
 
 <script>
   import {
-    sortBy, nth, indexOf, equals, assocPath, map, compose, assoc, path, cond, and, prop, both, T, always, keys, filter, apply,
+    sort, nth, indexOf, equals, assocPath, map, compose, assoc, path, cond, and, prop, both, T, always, keys, filter, apply,
     range, pick, merge, converge, length, not, __, reduce, identity, findIndex, last, pipe, propEq, slice, uri, pluck, concat, remove, append
   } from 'ramda'
   import { mapState, mapGetters, dispatch, commit } from 'vuex'
   import Path from 'path'
+  import naturalSort from 'javascript-natural-sort'
 
   import { timestamp, digiUnit } from '../../filters'
   import { uploadFileDialog, uploadDirectoryDialog, downloadFileDialog, messgaeDialog, createContextmenu, showContextmenu, openExternal, windowOpen, writeText } from '../../api/electron.js'
@@ -92,6 +93,9 @@
         return {
           disabled: !this.selected.length
         }
+      },
+      sortInfo() {
+        return path(['list', 'sortInfo'], this) || {}
       },
       listOperationSingelItemClass() {
         return {
@@ -154,7 +158,10 @@
         return this.selected.includes(uri) ? 0 : -1
       },
       sort(key) {
-        console.log(key)
+        this.$store.commit('SET_SORT_INFO', {
+          key: key,
+          isReverse: this.sortInfo.key === key ? !this.sortInfo.isReverse : this.sortInfo.isReverse,
+        })
       },
       keydown($event) {
         const { ctrlKey, key, shiftKey } = $event

@@ -2,6 +2,7 @@
 export const LOGIN_SUCCESS = 'LOGIN_SUCCESS' // 登录成功
 export const SET_USER_INFO = 'SET_USER_INFO' // 设置用户信息
 export const SET_CURRENT_LIST = 'SET_CURRENT_LIST' // 设置当前目录列表
+export const SET_SORT_INFO = 'SET_SORT_INFO' // 排序key
 export const CHANGE_DIR = 'CHANGE_DIR' // 改变当前目录
 export const SHORTCUT_SELECT_ALL = 'SHORTCUT_SELECT_ALL' // 选择所有文件
 export const SET_SELECT_LIST = 'SET_SELECT_LIST' // 选择所有文件
