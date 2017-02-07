@@ -3,6 +3,7 @@ import { createReadStream, createWriteStream, readdirSync, statSync, existsSync,
 import Request from 'request'
 import Path from 'path'
 import Url from 'url'
+import mime from 'mime'
 
 import { getAuthorizationHeader, md5sum, getUri, standardUri, sleep, getFilenameFromUrl, isDir } from './tool.js'
 import Store from '../vuex/store' // 不能解构, 因为这时 store 还没完成初始化
@@ -61,6 +62,18 @@ export const getListDirInfo = (remotePath = '') => {
                       compose(concat(remotePath), prop('filename')),
                       compose(ifElse(equals('F'), always('/'), always('')), prop('folderType')),
                     ]),
+                    identity,
+                  ])),
+                  map(converge(assoc, [
+                    always('filetype'),
+                    obj => {
+                      mime.default_type = ''
+                      if(obj.folderType === 'F') {
+                        return ''
+                      } else {
+                        return mime.lookup(obj.filename)
+                      }
+                    },
                     identity,
                   ])),
                   map(compose(zipObj(['filename', 'folderType', 'size', 'lastModified']), split(/\t/))),

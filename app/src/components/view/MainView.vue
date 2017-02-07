@@ -41,10 +41,10 @@
           <div class="column-file-size table-column"></div>
         </div>
         <div class="file-list-header">
-          <div class="file-info-item column-file-name">名称</div>
-          <div class="file-info-item column-last-modified">修改日期</div>
-          <div class="file-info-item column-file-type">类型</div>
-          <div class="file-info-item column-file-size">大小</div>
+          <div class="file-info-item column-file-name" @click="sort('filename')">名称</div>
+          <div class="file-info-item column-last-modified" @click="sort('lastModified')">修改日期</div>
+          <div class="file-info-item column-file-type" @click="sort('filetype')">类型</div>
+          <div class="file-info-item column-file-size" @click="sort('size')">大小</div>
         </div>
         <div class="file-list-body">
           <div
@@ -60,7 +60,7 @@
               <i class="file-icon" :class="{'icon-folder': file.folderType === 'F'}"></i>{{file.filename}}
             </div>
             <div class="last-modified file-info-item">{{file.lastModified | timestamp}}</div>
-            <div class="file-type file-info-item">文件</div>
+            <div class="file-type file-info-item">{{file.filetype}}</div>
             <div class="file-size file-info-item">{{(file.folderType === 'F' ? '-' : file.size) | digiUnit}}</div>
           </div>
         </div>
@@ -126,7 +126,7 @@
       dragend($event) {
         return false
       },
-      dragover() {
+      dragover($event) {
         return false
       },
       drop($event) {
