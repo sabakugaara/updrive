@@ -14,4 +14,36 @@
       content: url("assets/icons/folder.png");
     }
   }
+  &.icon-image {
+    &:before {
+      content: url("assets/icons/image.png");
+    }
+  }
+  &.icon-html {
+    &:before {
+      content: url("assets/icons/html.png");
+    }
+  }
+  &.icon-js {
+    &:before {
+      content: url("assets/icons/js.png");
+    }
+  }
+  &.icon-style {
+    &:before {
+      content: url("assets/icons/style.png");
+    }
+  }
+  &.icon-audio {
+    vertical-align: -3px;
+    &:before {
+      content: url("assets/icons/audio.png");
+    }
+  }
+  &.icon-video {
+    vertical-align: -3px;
+    &:before {
+      content: url("assets/icons/video.png");
+    }
+  }
 }

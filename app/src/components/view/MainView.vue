@@ -57,7 +57,7 @@
             @contextmenu.prevent="contextmenu(file)"
           >
             <div class="file-name file-info-item">
-              <i class="file-icon" :class="{'icon-folder': file.folderType === 'F'}"></i>{{file.filename}}
+              <i class="file-icon" :class="getFileIconClass(file.folderType, file.filename)"></i>{{file.filename}}
             </div>
             <div class="last-modified file-info-item">{{file.lastModified | timestamp}}</div>
             <div class="file-type file-info-item">{{file.filetype}}</div>
@@ -117,6 +117,18 @@
       ...mapGetters(['cname']),
     },
     methods: {
+      getFileIconClass(folderType, filename = '') {
+        const extensionName = Path.extname(filename).toLocaleLowerCase()
+        return {
+          'icon-folder': folderType === 'F',
+          'icon-image': [ '.bmp', '.gif', '.ico', '.jpg', '.jpeg', '.png', '.svg', '.webp', '.gifv' ].includes(extensionName),
+          'icon-audio': [ '.mp3', '.m4a', '.ogg' ].includes(extensionName),
+          'icon-video': [ '.avi', '.mp4', '.flv', '.mov', '.3gp', '.asf', '.wmv', '.mpg', '.f4v', '.m4v', '.mkv' ].includes(extensionName),
+          'icon-html': ['.htm', '.html', '.vue'].includes(extensionName),
+          'icon-js': ['.js', '.jsx'].includes(extensionName),
+          'icon-style': ['.css', '.sass', '.less', '.stylus'].includes(extensionName),
+        }
+      },
       dragstart($event) {
         return false
       },
