@@ -32,7 +32,7 @@
         修改路径
       </div>
     </div>
-    <div class="list">
+    <div class="list" @contextmenu.prevent="contextmenu()">
       <div class="file-list" v-if="list.dirInfo.data.length">
         <div class="file-list-column">
           <div class="column-file-name table-column"></div>
@@ -54,7 +54,7 @@
             :tabindex="getListTabIndex(file.uri)"
             @click.stop="selectItem(file, $event, index)"
             @dblclick.stop="dblclickItem(file.uri)"
-            @contextmenu.prevent="contextmenu(file)"
+            @contextmenu.prevent="contextmenuItem(file)"
           >
             <div class="file-name file-info-item">
               <i class="file-icon" :class="getFileIconClass(file.folderType, file.filename)"></i>{{file.filename}}
@@ -77,14 +77,14 @@
 
 <script>
   import {
-    nth, indexOf, equals, assocPath, map, compose, assoc, path, cond, and, prop, both, T, always, keys, filter, apply,
+    sortBy, nth, indexOf, equals, assocPath, map, compose, assoc, path, cond, and, prop, both, T, always, keys, filter, apply,
     range, pick, merge, converge, length, not, __, reduce, identity, findIndex, last, pipe, propEq, slice, uri, pluck, concat, remove, append
   } from 'ramda'
   import { mapState, mapGetters, dispatch, commit } from 'vuex'
   import Path from 'path'
 
   import { timestamp, digiUnit } from '../../filters'
-  import { downloadFileDialog, messgaeDialog, createContextmenu, showContextmenu, openExternal, windowOpen, writeText } from '../../api/electron.js'
+  import { uploadFileDialog, uploadDirectoryDialog, downloadFileDialog, messgaeDialog, createContextmenu, showContextmenu, openExternal, windowOpen, writeText } from '../../api/electron.js'
 
   export default {
     computed: {
@@ -153,6 +153,9 @@
       getListTabIndex(uri) {
         return this.selected.includes(uri) ? 0 : -1
       },
+      sort(key) {
+        console.log(key)
+      },
       keydown($event) {
         const { ctrlKey, key, shiftKey } = $event
         const uriData = pluck('uri', this.list.dirInfo.data)
@@ -182,7 +185,7 @@
           selectUri(append(targetUri, this.selected))
         }
         if (!ctrlKey && !shiftKey && key === 'Enter') {
-          this.dblclickItem(last(uriData))
+          this.dblclickItem(last(this.selected))
         }
       },
       selectItem({uri}, $event, index) {
@@ -202,9 +205,11 @@
         }
         this.$store.commit({ type: 'SET_SELECT_LIST', selected: getSelectedList() })
       },
-      // 右键点击
-      contextmenu({uri}) {
+      contextmenuItem({uri}) {
         if (!this.selected.includes(uri)) this.$store.commit({ type: 'SET_SELECT_LIST', selected: [uri] })
+      },
+      // 右键点击
+      contextmenu() {
         this.$nextTick(this.showContextMenu)
       },
       // 显示菜单
@@ -214,10 +219,14 @@
             { hide: !this.uniqueSelectedUri, label: '打开', click: () => this.dblclickItem(this.uniqueSelectedUri) },
             { hide: !this.uniqueSelectedUri, label: '在浏览器中打开', click: () => openExternal(this.getUrl()) },
             { hide: !this.uniqueSelectedUri, type: 'separator' },
-            { hide: !this.uniqueSelectedUri, label: '修改路径...', click: () => this.renameFile() },
-            { hide: !this.uniqueSelectedUri, label: '获取链接', click: () => this.getLink() },
             { hide: !this.uniqueSelectedUri, label: '查看详细信息', click: () => console.log('item 1 clicked') },
+            { hide: !this.uniqueSelectedUri, label: '获取链接', click: () => this.getLink() },
+            { hide: !this.uniqueSelectedUri, label: '修改路径...', click: () => this.renameFile() },
             { hide: !this.selected.length, label: '下载', click: () => this.downloadFile() },
+            { hide: !this.uniqueSelectedUri, type: 'separator' },
+            { hide: false, label: '新建文件夹', click: () => this.createFolder() },
+            { hide: false, label: '上传文件', click: () => this.uploadFile() },
+            { hide: false, label: '上传文件夹', click: () => this.uploadDirectory() },
             { hide: !this.uniqueSelectedUri, type: 'separator' },
             { hide: !this.selected.length, label: '删除', click: () => this.deleteFile() },
           ]
@@ -237,6 +246,7 @@
       // 双击
       dblclickItem(uri) {
         // 如果是文件夹,则打开目录
+        console.log(uri)
         if (/\/$/.test(uri)) {
           this.$store.dispatch({ type: 'GET_LIST_DIR_INFO', remotePath: uri })
         } else {
@@ -274,6 +284,36 @@
         if (!this.uniqueSelectedUri) return
         this.$store.commit('RENAME_FILE_SET_OLD_PATH', this.uniqueSelectedUri)
         this.$store.commit('OPEN_RENAME_FILE_MODAL')
+      },
+      // 新建文件夹
+      createFolder() {
+        return this.$store.commit('OPEN_CREATE_FOLDER_MODAL')
+      },
+      // 上传文件
+      uploadFile() {
+        return uploadFileDialog()
+          .then(filePaths => {
+            if (!filePaths || !filePaths.length) return
+            return this.$store
+              .dispatch({
+                type: 'UPLOAD_FILES',
+                remotePath: this.currentDirPath,
+                localFilePaths: filePaths,
+              })
+          })
+      },
+      // 上传文件夹
+      uploadDirectory() {
+        return uploadDirectoryDialog()
+          .then(folderPaths => {
+            if (!folderPaths || !folderPaths.length) return
+            return this.$store
+              .dispatch({
+                type: 'UPLOAD_FILES',
+                remotePath: this.currentDirPath,
+                localFilePaths: folderPaths,
+              })
+          })
       }
     },
     filters: {
