@@ -1,5 +1,5 @@
 <template>
-  <div class="list-view" tabindex="-1" @keydown="keydown" @dragstart="dragstart" @dragleave="dragleave" @dragend="dragend" @dragover="dragover" @drop="drop">
+  <div class="list-view" ref='listView' tabindex="-1" @keydown="keydown" @dragstart="dragstart" @dragleave="dragleave" @dragend="dragend" @dragover="dragover" @drop="drop">
     <div class="list-operation">
       <div class="list-operation-item" @click="getLink" :class="listOperationSingelItemClass">
         <svg class="svg-icon">
@@ -163,6 +163,9 @@
           isReverse: this.sortInfo.key === key ? !this.sortInfo.isReverse : this.sortInfo.isReverse,
         })
       },
+      listGetFocus() {
+        this.$refs.listView.focus()
+      },
       keydown($event) {
         const { ctrlKey, key, shiftKey, altKey } = $event
         const uriData = pluck('uri', this.list.dirInfo.data)
@@ -191,13 +194,19 @@
           const targetUri = (currentLastIndex - 1 < 0) ? nth(0, uriData) : nth(currentLastIndex - 1, uriData)
           selectUri(append(targetUri, this.selected))
         }
-        if (altKey && key === 'ArrowRight') {
+        if (key === 'ArrowRight') {
           console.log(this.forwardUri)
-          if(this.forwardUri !== undefined) this.$store.dispatch({ type: 'GET_LIST_DIR_INFO', remotePath: this.forwardUri, action: 1 })
+          if(this.forwardUri !== undefined) {
+            this.$store.dispatch({ type: 'GET_LIST_DIR_INFO', remotePath: this.forwardUri, action: 1 })
+              .then(() => this.listGetFocus())
+          }
         }
-        if ((altKey && key === 'ArrowLeft') || key === 'Backspace') {
+        if ((key === 'ArrowLeft') || key === 'Backspace') {
           console.log(this.backUri)
-          if(this.backUri !== undefined) this.$store.dispatch({ type: 'GET_LIST_DIR_INFO', remotePath: this.backUri, action: -1 })
+          if(this.backUri !== undefined) {
+            this.$store.dispatch({ type: 'GET_LIST_DIR_INFO', remotePath: this.backUri, action: -1 })
+              .then(() => this.listGetFocus())
+          }
         }
         if (!ctrlKey && !shiftKey && key === 'Enter') {
           this.dblclickItem(last(this.selected))
@@ -264,6 +273,7 @@
         if (/\/$/.test(uri)) {
           const historyUri = this.currentDirPath
           this.$store.dispatch({ type: 'GET_LIST_DIR_INFO', remotePath: uri, action: 0 })
+            .then(() => this.listGetFocus())
         } else {
           window.open(this.getUrl(), this.getUrl(), { frame: false })
         }
