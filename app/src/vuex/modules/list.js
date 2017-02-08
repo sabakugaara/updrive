@@ -1,4 +1,4 @@
-import { pipe, reverse, merge, sort, sortBy, filter, identity, split, compose, append, pluck } from 'ramda'
+import { last, dropLast, path, pipe, reverse, merge, sort, sortBy, filter, identity, split, compose, append, pluck } from 'ramda'
 import * as Types from '../mutation-types'
 
 const state = {
@@ -9,6 +9,10 @@ const state = {
   sortInfo: {
     isReverse: false,
     key: '',
+  },
+  history: {
+    forwardStack: [],
+    backStack: [],
   },
   selected: [],
 }
@@ -57,10 +61,36 @@ const listSort = (data = [], key, isReverse) => {
 
 
 const mutations = {
-  [Types.SET_CURRENT_LIST](state, { data }) {
+  [Types.SET_CURRENT_LIST](state, { data, action }) {
+    const historyPath = path(['dirInfo', 'path'], state)
+    let forwardStack = path(['history', 'forwardStack'], state)
+    let backStack = path(['history', 'backStack'], state)
+
     state.dirInfo = data
     state.dirInfo = merge(state.dirInfo, { data: listSort(state.dirInfo.data, state.sortInfo.key, state.sortInfo.isReverse) })
     state.selected = []
+
+    // action 0 表示打开新目录
+    if(action === 0) {
+      state.history.forwardStack = []
+      if(last(state.history.backStack) !== historyPath) {
+        state.history.backStack = append(historyPath, backStack)
+      }
+    }
+    // action 1 表示前进
+    if(action === 1) {
+      if(state.history.forwardStack.length) {
+        state.history.backStack = append(historyPath, backStack)
+        state.history.forwardStack = dropLast(1, forwardStack)
+      }
+    }
+    // action -1 表示后退
+    if(action === -1) {
+      if(state.history.backStack.length) {
+        state.history.forwardStack = append(historyPath, forwardStack)
+        state.history.backStack = dropLast(1, backStack)
+      }
+    }
   },
   [Types.SHORTCUT_SELECT_ALL](state, data) {
     state.selected = pluck('uri', state.dirInfo.data)

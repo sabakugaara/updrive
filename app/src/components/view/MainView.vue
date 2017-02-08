@@ -118,7 +118,7 @@
         return path(['list', 'dirInfo', 'path'], this)
       },
       ...mapState(['user', 'list']),
-      ...mapGetters(['cname']),
+      ...mapGetters(['cname', 'backUri', 'forwardUri']),
     },
     methods: {
       getFileIconClass(folderType, filename = '') {
@@ -164,7 +164,7 @@
         })
       },
       keydown($event) {
-        const { ctrlKey, key, shiftKey } = $event
+        const { ctrlKey, key, shiftKey, altKey } = $event
         const uriData = pluck('uri', this.list.dirInfo.data)
         const selectUri = selected => this.$store.commit({ type: 'SET_SELECT_LIST', selected: selected })
         if (ctrlKey && !shiftKey && key === 'a') {
@@ -190,6 +190,14 @@
           const currentLastIndex = indexOf(last(this.selected), uriData)
           const targetUri = (currentLastIndex - 1 < 0) ? nth(0, uriData) : nth(currentLastIndex - 1, uriData)
           selectUri(append(targetUri, this.selected))
+        }
+        if (altKey && key === 'ArrowRight') {
+          console.log(this.forwardUri)
+          if(this.forwardUri !== undefined) this.$store.dispatch({ type: 'GET_LIST_DIR_INFO', remotePath: this.forwardUri, action: 1 })
+        }
+        if ((altKey && key === 'ArrowLeft') || key === 'Backspace') {
+          console.log(this.backUri)
+          if(this.backUri !== undefined) this.$store.dispatch({ type: 'GET_LIST_DIR_INFO', remotePath: this.backUri, action: -1 })
         }
         if (!ctrlKey && !shiftKey && key === 'Enter') {
           this.dblclickItem(last(this.selected))
@@ -253,9 +261,9 @@
       // 双击
       dblclickItem(uri) {
         // 如果是文件夹,则打开目录
-        console.log(uri)
         if (/\/$/.test(uri)) {
-          this.$store.dispatch({ type: 'GET_LIST_DIR_INFO', remotePath: uri })
+          const historyUri = this.currentDirPath
+          this.$store.dispatch({ type: 'GET_LIST_DIR_INFO', remotePath: uri, action: 0 })
         } else {
           window.open(this.getUrl(), this.getUrl(), { frame: false })
         }

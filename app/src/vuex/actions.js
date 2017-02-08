@@ -17,12 +17,13 @@ export default {
       })
   },
   // 获取文件目录信息
-  [Types.GET_LIST_DIR_INFO]({ state, commit }, { remotePath }) {
+  [Types.GET_LIST_DIR_INFO]({ state, commit }, { remotePath, action }) {
     return Upyun.getListDirInfo(remotePath)
       .then(result => {
         commit({
           type: Types.SET_CURRENT_LIST,
-          data: result
+          data: result,
+          action: action,
         })
         return result
       })
