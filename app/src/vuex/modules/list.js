@@ -1,4 +1,4 @@
-import { reverse, merge, sort, sortBy, filter, identity, split, compose, append, pluck } from 'ramda'
+import { pipe, reverse, merge, sort, sortBy, filter, identity, split, compose, append, pluck } from 'ramda'
 import * as Types from '../mutation-types'
 
 const state = {
@@ -15,6 +15,27 @@ const state = {
 
 const listSort = (data = [], key, isReverse) => {
   if (!key) return data
+
+  const naturalCompareString = (a = '', b = '') => {
+    try {
+      const splitByNumber = pipe(split(/(\d+)/), filter(identity))
+      const [aArr, bArr] = [splitByNumber(a), splitByNumber(b)]
+      for (let i = 0; i < aArr.length; i++) {
+        if (aArr[i] !== bArr[i]) {
+          if (bArr[i] === undefined) return 1
+          if (!isNaN(aArr[i]) && !isNaN(bArr[i])) {
+            return parseInt(aArr[i]) - parseInt(bArr[i])
+          } else {
+            return aArr[i].localeCompare(bArr[i])
+          }
+        }
+      }
+      return 0
+    } catch (err) {
+      return a.localeCompare(b)
+    }
+  }
+
   const sortData = sort((ObjA, ObjB) => {
     if (ObjA.folderType !== ObjB.folderType) {
       return ObjA.folderType === 'F' ? -1 : 1
@@ -22,14 +43,15 @@ const listSort = (data = [], key, isReverse) => {
     if (key === "lastModified" || key === "size") {
       return ObjA[key] !== ObjB[key] ?
         Number(ObjA[key]) - Number(ObjB[key]) :
-        ObjA.filename.localeCompare(ObjB.filename)
+        naturalCompareString(ObjA.filename, ObjB.filename)
     }
     if (key === "filetype" || key === "filename") {
       return ObjA[key] !== ObjB[key] ?
-        String(ObjA[key]).localeCompare(String(ObjB[key])) :
-        ObjA.filename.localeCompare(ObjB.filename)
+        naturalCompareString(String(ObjA[key]), String(ObjB[key])) :
+        naturalCompareString(ObjA.filename, ObjB.filename)
     }
   }, state.dirInfo.data)
+
   return isReverse ? reverse(sortData) : sortData
 }
 
