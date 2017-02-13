@@ -163,6 +163,9 @@
           isReverse: this.sortInfo.key === key ? !this.sortInfo.isReverse : this.sortInfo.isReverse,
         })
       },
+      findFileByUri(uri = this.uniqueSelectedUri) {
+        return last(this.list.dirInfo.data.filter(data => data.uri === uri))
+      },
       listGetFocus() {
         this.$refs.listView.focus()
       },
@@ -195,14 +198,12 @@
           selectUri(append(targetUri, this.selected))
         }
         if (key === 'ArrowRight') {
-          console.log(this.forwardUri)
           if(this.forwardUri !== undefined) {
             this.$store.dispatch({ type: 'GET_LIST_DIR_INFO', remotePath: this.forwardUri, action: 1 })
               .then(() => this.listGetFocus())
           }
         }
         if ((key === 'ArrowLeft') || key === 'Backspace') {
-          console.log(this.backUri)
           if(this.backUri !== undefined) {
             this.$store.dispatch({ type: 'GET_LIST_DIR_INFO', remotePath: this.backUri, action: -1 })
               .then(() => this.listGetFocus())
@@ -243,7 +244,7 @@
             { hide: !this.uniqueSelectedUri, label: '打开', click: () => this.dblclickItem(this.uniqueSelectedUri) },
             { hide: !this.uniqueSelectedUri, label: '在浏览器中打开', click: () => openExternal(this.getUrl()) },
             { hide: !this.uniqueSelectedUri, type: 'separator' },
-            { hide: !this.uniqueSelectedUri, label: '查看详细信息', click: () => console.log('item 1 clicked') },
+            { hide: !this.uniqueSelectedUri, label: '查看详细信息', click: () => this.getFileDetail() },
             { hide: !this.uniqueSelectedUri, label: '获取链接', click: () => this.getLink() },
             { hide: !this.uniqueSelectedUri, label: '修改路径...', click: () => this.renameFile() },
             { hide: !this.selected.length, label: '下载', click: () => this.downloadFile() },
@@ -256,8 +257,18 @@
           ]
         })
       },
+      // 查看详细信息
+      getFileDetail() {
+        if(this.uniqueSelectedUri) {
+          console.log(this.findFileByUri())
+          this.$store.dispatch({
+            type: 'GET_FILE_DETAIL_INFO',
+            filePath: this.getUrl(),
+          })
+        }
+      },
       getUrl(uri = this.uniqueSelectedUri) {
-        return this.cname + uri
+        return this.cname + encodeURIComponent(uri)
       },
       // 链接
       getLink(uri) {
@@ -299,7 +310,6 @@
         if (!this.selected.length) return
         return downloadFileDialog()
           .then(path => {
-            console.log(path)
             if (!path) return
             this.$store.dispatch({ type: 'DOWNLOAD_FILES', downloadPath: this.selected, destPath: path })
           })

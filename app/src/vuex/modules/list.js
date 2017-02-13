@@ -8,7 +8,7 @@ const state = {
   },
   sortInfo: {
     isReverse: false,
-    key: '',
+    key: 'filename',
   },
   history: {
     forwardStack: [],

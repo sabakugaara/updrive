@@ -56,5 +56,12 @@ export default {
   [Types.DOWNLOAD_FILES]({ state, commit, dispatch}, { destPath, downloadPath } = {}) {
     return Upyun.downloadFiles(destPath, downloadPath)
   },
+  // 获取文件详情信息
+  [Types.GET_FILE_DETAIL_INFO]({ state}, { filePath } = {}) {
+    return Upyun.getFileHead(filePath)
+      .then(data => {
+        console.log(data)
+      })
+  },
 }
 

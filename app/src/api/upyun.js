@@ -68,7 +68,7 @@ export const getListDirInfo = (remotePath = '') => {
                     always('filetype'),
                     obj => {
                       mime.default_type = ''
-                      if(obj.folderType === 'F') {
+                      if (obj.folderType === 'F') {
                         return ''
                       } else {
                         return mime.lookup(obj.filename)
@@ -299,4 +299,19 @@ export const downloadFiles = async (destPath, downloadPath) => {
   for (const pathObj of dirAll) {
     await downloadFile(pathObj.localPath, pathObj.downloadPath)
   }
+}
+
+// HEAD 请求
+export const getFileHead = (filePath) => {
+  return new Promise((resolve, reject) => {
+    Request({
+      method: 'HEAD',
+      url: filePath,
+    }, (error, response, body) => {
+      console.log(error, response, body)
+      if (error) reject(error)
+      if (response.statusCode !== 200) return reject(body)
+      return resolve(response.headers)
+    })
+  })
 }

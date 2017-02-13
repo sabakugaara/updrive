@@ -25,3 +25,5 @@ export const REFRESH_LIST = 'REFRESH_LIST' // 刷新当前目录
 export const DELETE_FILE = 'DELETE_FILE' // 删除文件
 export const RENAME_FILE = 'RENAME_FILE' // 重命名文件
 export const DOWNLOAD_FILES = 'DOWNLOAD_FILES' // 下载文件
+export const GET_FILE_DETAIL_INFO = 'GET_FILE_DETAIL_INFO' // 获取文件详情信息
+
