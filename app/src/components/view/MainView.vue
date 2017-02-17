@@ -1,75 +1,89 @@
 <template>
-  <div class="list-view" ref='listView' tabindex="-1" @keydown="keydown" @dragstart="dragstart" @dragleave="dragleave" @dragend="dragend" @dragover="dragover" @drop="drop">
-    <div class="list-operation">
-      <div class="list-operation-item" @click="getLink" :class="listOperationSingelItemClass">
-        <svg class="svg-icon">
-          <use xlink:href="#icon-link"></use>
-        </svg>
-        获取链接
-      </div>
-      <div class="list-operation-item" @click="downloadFile" :class="listOperationSingelItemClass">
-        <svg class="svg-icon">
-          <use xlink:href="#icon-icondownload"></use>
-        </svg>
-        下载
-      </div>
-      <div class="list-operation-item" @click="dblclickItem" :class="listOperationSingelItemClass">
-        <svg class="svg-icon">
-          <use xlink:href="#icon-browse"></use>
-        </svg>
-        查看
-      </div>
-      <div class="list-operation-item" @click="deleteFile" :class="listOperationItemClass">
-        <svg class="svg-icon">
-          <use xlink:href="#icon-delete"></use>
-        </svg>
-        删除
-      </div>
-      <div class="list-operation-item" @click="renameFile" :class="listOperationSingelItemClass">
-        <svg class="svg-icon">
-          <use xlink:href="#icon-edit"></use>
-        </svg>
-        修改路径
-      </div>
-    </div>
-    <div class="list" @contextmenu.prevent="contextmenu()">
-      <div class="file-list" v-if="list.dirInfo.data.length">
-        <div class="file-list-column">
-          <div class="column-file-name table-column"></div>
-          <div class="column-last-modified table-column"></div>
-          <div class="column-file-type table-column"></div>
-          <div class="column-file-size table-column"></div>
+  <div class="list-view">
+    <div class="list-view-main" ref='listView' tabindex="-1" @keydown="keydown" @dragstart="dragstart" @dragleave="dragleave" @dragend="dragend" @dragover="dragover" @drop="drop">
+      <div class="list-operation">
+        <div class="list-operation-item" @click="getLink" :class="listOperationSingelItemClass">
+          <svg class="svg-icon">
+            <use xlink:href="#icon-link"></use>
+          </svg>
+          获取链接
         </div>
-        <div class="file-list-header">
-          <div class="file-info-item column-file-name" @click="sort('filename')">名称</div>
-          <div class="file-info-item column-last-modified" @click="sort('lastModified')">修改日期</div>
-          <div class="file-info-item column-file-type" @click="sort('filetype')">类型</div>
-          <div class="file-info-item column-file-size" @click="sort('size')">大小</div>
+        <div class="list-operation-item" @click="downloadFile" :class="listOperationSingelItemClass">
+          <svg class="svg-icon">
+            <use xlink:href="#icon-icondownload"></use>
+          </svg>
+          下载
         </div>
-        <div class="file-list-body">
-          <div
-            class="file-list-item"
-            v-for="(file, index) in list.dirInfo.data"
-            :class="{ 'item-selected': (listItemState[file.uri] && listItemState[file.uri].selected) }"
-            :tabindex="getListTabIndex(file.uri)"
-            @click.stop="selectItem(file, $event, index)"
-            @dblclick.stop="dblclickItem(file.uri)"
-            @contextmenu.prevent="contextmenuItem(file)"
-          >
-            <div class="file-name file-info-item">
-              <i class="file-icon" :class="getFileIconClass(file.folderType, file.filename)"></i>{{file.filename}}
+        <div class="list-operation-item" @click="dblclickItem" :class="listOperationSingelItemClass">
+          <svg class="svg-icon">
+            <use xlink:href="#icon-browse"></use>
+          </svg>
+          查看
+        </div>
+        <div class="list-operation-item" @click="deleteFile" :class="listOperationItemClass">
+          <svg class="svg-icon">
+            <use xlink:href="#icon-delete"></use>
+          </svg>
+          删除
+        </div>
+        <div class="list-operation-item" @click="renameFile" :class="listOperationSingelItemClass">
+          <svg class="svg-icon">
+            <use xlink:href="#icon-edit"></use>
+          </svg>
+          修改路径
+        </div>
+      </div>
+      <div class="list" @contextmenu.prevent="contextmenu()">
+        <div class="file-list" v-if="list.dirInfo.data.length">
+          <div class="file-list-column">
+            <div class="column-file-name table-column"></div>
+            <div class="column-last-modified table-column"></div>
+            <div class="column-file-type table-column"></div>
+            <div class="column-file-size table-column"></div>
+          </div>
+          <div class="file-list-header">
+            <div class="file-info-item column-file-name" @click="sort('filename')">名称</div>
+            <div class="file-info-item column-last-modified" @click="sort('lastModified')">修改日期</div>
+            <div class="file-info-item column-file-type" @click="sort('filetype')">类型</div>
+            <div class="file-info-item column-file-size" @click="sort('size')">大小</div>
+          </div>
+          <div class="file-list-body">
+            <div
+              class="file-list-item"
+              v-for="(file, index) in list.dirInfo.data"
+              :class="{ 'item-selected': (listItemState[file.uri] && listItemState[file.uri].selected) }"
+              :tabindex="getListTabIndex(file.uri)"
+              @click.stop="selectItem(file, $event, index)"
+              @dblclick.stop="dblclickItem(file.uri)"
+              @contextmenu.prevent="contextmenuItem(file)"
+            >
+              <div class="file-name file-info-item">
+                <i class="file-icon" :class="getFileIconClass(file.folderType, file.filename)"></i>{{file.filename}}
+              </div>
+              <div class="last-modified file-info-item">{{file.lastModified | timestamp}}</div>
+              <div class="file-type file-info-item">{{file.filetype}}</div>
+              <div class="file-size file-info-item">{{(file.folderType === 'F' ? '-' : file.size) | digiUnit}}</div>
             </div>
-            <div class="last-modified file-info-item">{{file.lastModified | timestamp}}</div>
-            <div class="file-type file-info-item">{{file.filetype}}</div>
-            <div class="file-size file-info-item">{{(file.folderType === 'F' ? '-' : file.size) | digiUnit}}</div>
+          </div>
+        </div>
+        <div v-if="!list.dirInfo.data.length" class="empty-list">
+          <div class="empty-list-content">
+            <p>该文件夹为空</p>
+            <p>拖动上传文件</p>
           </div>
         </div>
       </div>
-      <div v-if="!list.dirInfo.data.length" class="empty-list">
-        <div class="empty-list-content">
-          <p>该文件夹为空</p>
-          <p>拖动上传文件</p>
+    </div>
+    <div class="list-view-detail">
+      <div>
+        <div>
+          <i class="file-icon" :class="getFileIconClass()"></i>xxxxxxx.doc
         </div>
+        <span class="list-view-detail-close">
+          <svg x="0px" y="0px" width="16px" height="16px" viewBox="0 0 10 10" focusable="false">
+            <polygon class="a-s-fa-Ha-pa" fill="#000000" points="10,1.01 8.99,0 5,3.99 1.01,0 0,1.01 3.99,5 0,8.99 1.01,10 5,6.01 8.99,10 10,8.99 6.01,5 "></polygon>
+          </svg>
+        </span>
       </div>
     </div>
   </div>
