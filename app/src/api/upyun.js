@@ -230,7 +230,6 @@ export const polling = async (func, times = 10, space = 500) => {
 // @TODO 控制并发数量
 export const deleteFiles = async remotePaths => {
   const waitDeleteInit = await traverseDir(remotePaths)
-  console.log(waitDeleteInit)
   const deleteError = []
 
   for (const remoteFilePath of waitDeleteInit) {
@@ -308,7 +307,6 @@ export const getFileHead = (filePath) => {
       method: 'HEAD',
       url: filePath,
     }, (error, response, body) => {
-      console.log(error, response, body)
       if (error) reject(error)
       if (response.statusCode !== 200) return reject(body)
       return resolve(response.headers)

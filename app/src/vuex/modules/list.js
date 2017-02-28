@@ -14,6 +14,9 @@ const state = {
     forwardStack: [],
     backStack: [],
   },
+  detail: {
+
+  },
   selected: [],
 }
 

@@ -274,7 +274,7 @@
       // 查看详细信息
       getFileDetail() {
         if(this.uniqueSelectedUri) {
-          console.log(this.findFileByUri())
+          console.log(this.findFileByUri(), 111)
           this.$store.dispatch({
             type: 'GET_FILE_DETAIL_INFO',
             filePath: this.getUrl(),
