@@ -77,7 +77,7 @@
     <div class="list-view-detail">
       <div>
         <div>
-          <i class="file-icon" :class="getFileIconClass()"></i>xxxxxxx.doc
+          <i class="file-icon" :class="getFileIconClass()"></i>{{fileDetail.basicInfo && fileDetail.basicInfo.fileName}}
         </div>
         <span class="list-view-detail-close">
           <svg x="0px" y="0px" width="16px" height="16px" viewBox="0 0 10 10" focusable="false">
@@ -130,6 +130,10 @@
       },
       currentDirPath() {
         return path(['list', 'dirInfo', 'path'], this)
+      },
+      fileDetail() {
+        console.log(path(['list', 'fileDetail'], this).basicInfo.fileName)
+        return path(['list', 'fileDetail'], this)
       },
       ...mapState(['user', 'list']),
       ...mapGetters(['cname', 'backUri', 'forwardUri']),
@@ -274,10 +278,10 @@
       // 查看详细信息
       getFileDetail() {
         if(this.uniqueSelectedUri) {
-          console.log(this.findFileByUri(), 111)
           this.$store.dispatch({
             type: 'GET_FILE_DETAIL_INFO',
             filePath: this.getUrl(),
+            basicInfo: this.findFileByUri(),
           })
         }
       },

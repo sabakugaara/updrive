@@ -14,7 +14,7 @@ const state = {
     forwardStack: [],
     backStack: [],
   },
-  detail: {
+  fileDetail: {
 
   },
   selected: [],
@@ -74,22 +74,22 @@ const mutations = {
     state.selected = []
 
     // action 0 表示打开新目录
-    if(action === 0) {
+    if (action === 0) {
       state.history.forwardStack = []
-      if(last(state.history.backStack) !== historyPath) {
+      if (last(state.history.backStack) !== historyPath) {
         state.history.backStack = append(historyPath, backStack)
       }
     }
     // action 1 表示前进
-    if(action === 1) {
-      if(state.history.forwardStack.length) {
+    if (action === 1) {
+      if (state.history.forwardStack.length) {
         state.history.backStack = append(historyPath, backStack)
         state.history.forwardStack = dropLast(1, forwardStack)
       }
     }
     // action -1 表示后退
-    if(action === -1) {
-      if(state.history.backStack.length) {
+    if (action === -1) {
+      if (state.history.backStack.length) {
         state.history.forwardStack = append(historyPath, forwardStack)
         state.history.backStack = dropLast(1, backStack)
       }
@@ -112,6 +112,9 @@ const mutations = {
         path: '',
       },
     }
+  },
+  [Types.SET_FILE_DETAIL_INFO](state, { data }) {
+    state.fileDetail = data
   },
 }
 

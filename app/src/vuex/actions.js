@@ -57,10 +57,20 @@ export default {
     return Upyun.downloadFiles(destPath, downloadPath)
   },
   // 获取文件详情信息
-  [Types.GET_FILE_DETAIL_INFO]({ state}, { filePath } = {}) {
-    return Upyun.getFileHead(filePath)
+  [Types.GET_FILE_DETAIL_INFO]({ state, commit }, { filePath, basicInfo } = {}) {
+    return Promise.resolve()
+      .then(() => {
+        if(basicInfo.folderType === 'F') return Promise.resolve()
+        return Upyun.getFileHead(filePath)
+      })
       .then(data => {
-        console.log(data)
+        commit({
+          type: Types.SET_FILE_DETAIL_INFO,
+          data: {
+            headerInfo: data,
+            basicInfo: data,
+          },
+        })
       })
   },
 }
