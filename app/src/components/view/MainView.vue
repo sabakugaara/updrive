@@ -74,7 +74,7 @@
         </div>
       </div>
     </div>
-    <div class="list-view-detail">
+    <div class="list-view-detail" v-show="isViewDetail">
       <div class="list-view-detail-header">
         <div>
           <h4>
@@ -84,7 +84,7 @@
         <div class="separate-line-wrap">
           <div class="separate-line"></div>
         </div>
-        <span class="list-view-detail-close">
+        <span class="list-view-detail-close" @click="toggleShowViewDetail">
           <svg x="0px" y="0px" width="16px" height="16px" viewBox="0 0 10 10" focusable="false">
             <polygon class="a-s-fa-Ha-pa" fill="#000000" points="10,1.01 8.99,0 5,3.99 1.01,0 0,1.01 3.99,5 0,8.99 1.01,10 5,6.01 8.99,10 10,8.99 6.01,5 "></polygon>
           </svg>
@@ -114,6 +114,11 @@
   import { uploadFileDialog, uploadDirectoryDialog, downloadFileDialog, messgaeDialog, createContextmenu, showContextmenu, openExternal, windowOpen, writeText } from '../../api/electron.js'
 
   export default {
+    data() {
+      return {
+        isViewDetail: true
+      }
+    },
     computed: {
       listOperationItemClass() {
         return {
@@ -153,6 +158,10 @@
       ...mapGetters(['cname', 'backUri', 'forwardUri']),
     },
     methods: {
+      toggleShowViewDetail() {
+        this.isViewDetail = !this.isViewDetail
+        console.log(this.isViewDetail)
+      },
       getFileIconClass(folderType, filename = '') {
         const extensionName = Path.extname(filename).toLocaleLowerCase()
         return {
@@ -260,6 +269,9 @@
             return [uri]
           }
         }
+        if(this.isViewDetail) {
+          this.getFileDetail(uri)
+        }
         this.$store.commit({ type: 'SET_SELECT_LIST', selected: getSelectedList() })
       },
       contextmenuItem({uri}) {
@@ -290,12 +302,13 @@
         })
       },
       // 查看详细信息
-      getFileDetail() {
-        if(this.uniqueSelectedUri) {
+      getFileDetail(uri = '') {
+        this.isViewDetail = true
+        if(this.uniqueSelectedUri || uri) {
           this.$store.dispatch({
             type: 'GET_FILE_DETAIL_INFO',
-            filePath: this.getUrl(),
-            basicInfo: this.findFileByUri(),
+            filePath: this.getUrl(uri),
+            basicInfo: this.findFileByUri(uri),
           })
         }
       },
