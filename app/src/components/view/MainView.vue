@@ -92,13 +92,6 @@
       </div>
       <div class="list-view-detail-content">
         <div>
-          <div v-for="(value, key) in fileDetail.basicInfo" class="list-view-detail-content-item">
-            <div class="list-view-detail-content-item-value"><span style="font-weight:bold">{{key}} →&nbsp;&nbsp;</span>{{value}}</div>
-          </div>
-        </div>
-      </div>
-      <div class="list-view-detail-content">
-        <div>
           <div v-for="(value, key) in fileDetail.headerInfo" class="list-view-detail-content-item">
             <div class="list-view-detail-content-item-value"><span style="font-weight:bold">{{key}} →&nbsp;&nbsp;</span>{{value}}</div>
           </div>

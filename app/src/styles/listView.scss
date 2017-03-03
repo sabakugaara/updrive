@@ -22,16 +22,17 @@
     width: 350px;
     position: relative;
     padding: 10px;
+    -webkit-user-select: auto;
     .list-view-detail-header {
       h4 {
         width: 275px;
-        font-size: 20px;
-        line-height: 36px;
+        font-size: 18px;
+        line-height: 30px;
       }
     }
     .separate-line-wrap {
-      margin-bottom: 20px;
-      padding-top: 20px;
+      margin-bottom: 15px;
+      padding-top: 15px;
       width: 100%;
     }
     .list-view-detail-close {
@@ -40,7 +41,7 @@
       opacity: .5;
       position: absolute;
       right: 5px;
-      top: 26px;
+      top: 15px;
       width: 28px;
     }
     .list-view-detail-content {
