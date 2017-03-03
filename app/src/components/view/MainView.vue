@@ -75,15 +75,34 @@
       </div>
     </div>
     <div class="list-view-detail">
-      <div>
+      <div class="list-view-detail-header">
         <div>
-          <i class="file-icon" :class="getFileIconClass()"></i>{{fileDetail.basicInfo && fileDetail.basicInfo.fileName}}
+          <h4>
+            {{fileDetail.basicInfo.filename}}
+          </h4>
+        </div>
+        <div class="separate-line-wrap">
+          <div class="separate-line"></div>
         </div>
         <span class="list-view-detail-close">
           <svg x="0px" y="0px" width="16px" height="16px" viewBox="0 0 10 10" focusable="false">
             <polygon class="a-s-fa-Ha-pa" fill="#000000" points="10,1.01 8.99,0 5,3.99 1.01,0 0,1.01 3.99,5 0,8.99 1.01,10 5,6.01 8.99,10 10,8.99 6.01,5 "></polygon>
           </svg>
         </span>
+      </div>
+      <div class="list-view-detail-content">
+        <div>
+          <div v-for="(value, key) in fileDetail.basicInfo" class="list-view-detail-content-item">
+            <div class="list-view-detail-content-item-value"><span style="font-weight:bold">{{key}} →&nbsp;&nbsp;</span>{{value}}</div>
+          </div>
+        </div>
+      </div>
+      <div class="list-view-detail-content">
+        <div>
+          <div v-for="(value, key) in fileDetail.headerInfo" class="list-view-detail-content-item">
+            <div class="list-view-detail-content-item-value"><span style="font-weight:bold">{{key}} →&nbsp;&nbsp;</span>{{value}}</div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -132,8 +151,10 @@
         return path(['list', 'dirInfo', 'path'], this)
       },
       fileDetail() {
-        console.log(path(['list', 'fileDetail'], this).basicInfo.fileName)
-        return path(['list', 'fileDetail'], this)
+        return path(['list', 'fileDetail'], this, {
+          basicInfo: {},
+          headerInfo: {},
+        })
       },
       ...mapState(['user', 'list']),
       ...mapGetters(['cname', 'backUri', 'forwardUri']),

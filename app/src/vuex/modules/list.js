@@ -15,7 +15,8 @@ const state = {
     backStack: [],
   },
   fileDetail: {
-
+    basicInfo: {},
+    headerInfo: {},
   },
   selected: [],
 }

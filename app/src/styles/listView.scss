@@ -21,19 +21,48 @@
   .list-view-detail {
     width: 350px;
     position: relative;
+    padding: 10px;
+    .list-view-detail-header {
+      h4 {
+        width: 275px;
+        font-size: 20px;
+        line-height: 36px;
+      }
+    }
+    .separate-line-wrap {
+      margin-bottom: 20px;
+      padding-top: 20px;
+      width: 100%;
+    }
     .list-view-detail-close {
       cursor: pointer;
       height: 28px;
       opacity: .5;
       position: absolute;
       right: 5px;
-      top: 20px;
+      top: 26px;
       width: 28px;
+    }
+    .list-view-detail-content {
+      .list-view-detail-content-item {
+        display: flex;
+        font-size: 12px;
+        line-height: 20px;
+        .list-view-detail-content-item-label {
+          width: 90px;
+        }
+        .list-view-detail-content-item-value {
+          flex: 1;
+          word-break: break-all;
+        }
+      }
     }
   }
 }
 
-
+.separate-line {
+  border-top: 1px solid #e1e1e1;
+}
 
 .list-operation {
   height: 40px;

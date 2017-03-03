@@ -68,7 +68,7 @@ export default {
           type: Types.SET_FILE_DETAIL_INFO,
           data: {
             headerInfo: data,
-            basicInfo: data,
+            basicInfo: basicInfo,
           },
         })
       })
