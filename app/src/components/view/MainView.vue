@@ -108,7 +108,6 @@
   } from 'ramda'
   import { mapState, mapGetters, dispatch, commit } from 'vuex'
   import Path from 'path'
-  import naturalSort from 'javascript-natural-sort'
 
   import { timestamp, digiUnit } from '../../filters'
   import { uploadFileDialog, uploadDirectoryDialog, downloadFileDialog, messgaeDialog, createContextmenu, showContextmenu, openExternal, windowOpen, writeText } from '../../api/electron.js'
