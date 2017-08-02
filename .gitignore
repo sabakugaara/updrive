@@ -9,3 +9,4 @@ thumbs.db
 !.gitkeep
 settings.json
 debug.log
+package-lock.json
